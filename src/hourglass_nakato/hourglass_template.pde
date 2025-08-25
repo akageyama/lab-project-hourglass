@@ -114,7 +114,7 @@ final double PARAM_VIRTUAL_SPRING_NATURAL_LENGTH = 0.1;
                // 二つの砂粒間の仮想バネの自然長を調整するパラメータ
 final double PARAM_AVERAGE_TIME_SPAN_HINT = 1.0; 
                // 時間変動するデータの平均値をとる時間（単位は秒）の目安               
-
+final double PARAM_HOURGLASS_TIME_IN_SECOND = 10;
 
 // -----------------
 //    基本整数
@@ -137,6 +137,7 @@ final double HOURGLASS_HEIGHT = 1.0;
                // 砂時計の高さ (m)
 final double HOURGLASS_HALF_HEIGHT = HOURGLASS_HEIGHT / 2;  
                // 半分
+final double HOURGLASS_SAND_GRAIN_RELEASE_SECOND = PARAM_HOURGLASS_TIME_IN_SECOND / NSGIP;
 
 
 // --------
@@ -295,6 +296,9 @@ class Simulation
   int    nstep;
   double dt;
   
+  boolean time_keeping_on;  // 計時しているかどうか
+  double lap_time;
+  
   String str_time;
   String str_nstep;
   String str_dt;
@@ -311,6 +315,24 @@ class Simulation
     str_time  = nfs((float)time,1,8);
     str_nstep = nfs(nstep, 9);
     str_dt    = nfs((float)dt,1,8);
+    time_keeping_on = false;
+    lap_time = 0.0;
+  }
+  
+  void start_time_keeping()
+  {
+    time_keeping_on = true;
+    reset_lap_time(); 
+  }
+  
+  double get_lap_time()
+  {
+    return lap_time;
+  }
+  
+  void reset_lap_time()
+  {
+    lap_time = time;
   }
   
   void stepIncrement()
@@ -373,6 +395,13 @@ class Floor
   double getNormalForce()
   {
     return normal_force;
+  }
+  
+  void switch_touching_grain()
+  {
+    if( this.touching_grain < NSGIP-1 ) {
+      this.touching_grain += 1;
+    }
   }
   
   void draw() 
@@ -1091,6 +1120,21 @@ void draw_sand_grains_and_floors()
     for (int n=0; n<PARAM_VIEW_SPEED; n++) { // to speed up the display
 
       floor.resetNormalForce();   // reset
+      
+      if ( sim.time_keeping_on ) {
+println("sim.time_keeping_on");        
+        if( sim.time - sim.get_lap_time() > HOURGLASS_SAND_GRAIN_RELEASE_SECOND ) {
+println("sim.time" + sim.time);        
+println("sim.get_lap_time() = " + sim.get_lap_time());        
+println("HOURGLASS_SAND_GRAIN_RELEASE_SECOND = " + HOURGLASS_SAND_GRAIN_RELEASE_SECOND);        
+println("calling switch_touching_grain()");        
+          floor.switch_touching_grain();
+println("resetting reset_lap_time()");        
+          sim.reset_lap_time();
+println("(2nd) sim.get_lap_time() = " + sim.get_lap_time());        
+        }
+      }
+
       rungeKutta4();
       double hourglass_weight = floor.getNormalForce() / GRAVITY_ACCELERATION;
       
@@ -1164,9 +1208,9 @@ void mousePressed() {
 }
 
 
-//void keyPressed() {
-//  if ( key=='s' ) {
-//    DrawSolutionCurvesToggle = !DrawSolutionCurvesToggle;
-//    println("DrawSolutionCurvesToggle = ", DrawSolutionCurvesToggle);
-//  }
-//}  
+void keyPressed() {
+  if ( key=='s' ) {
+    sim.start_time_keeping();
+    println("Time keeping.");
+  }
+}  
