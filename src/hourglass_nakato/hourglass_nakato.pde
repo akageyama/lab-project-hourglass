@@ -1,6 +1,6 @@
 /*
 
-  hourglass_tempate.pde
+  hourglass_nakato.pde
 
          
          +---------+
