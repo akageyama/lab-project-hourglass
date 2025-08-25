@@ -110,11 +110,11 @@ final double PARAM_SPRING_DAMPER =1.0;
                // 砂粒のダンパーの減衰係数。1.0なら臨界減衰率               
 final double PARAM_VIRTUAL_SPRING_CONST = 0.01; 
                // 二つの砂粒間の仮想バネのバネ定数を調整するパラメータ
-final double PARAM_VIRTUAL_SPRING_NATURAL_LENGTH = 0.1;
+final double PARAM_VIRTUAL_SPRING_NATURAL_LENGTH = 0.03;
                // 二つの砂粒間の仮想バネの自然長を調整するパラメータ
 final double PARAM_AVERAGE_TIME_SPAN_HINT = 1.0; 
                // 時間変動するデータの平均値をとる時間（単位は秒）の目安               
-final double PARAM_HOURGLASS_TIME_IN_SECOND = 10;
+final double PARAM_HOURGLASS_TIME_IN_SECOND = 1;
 
 // -----------------
 //    基本整数
@@ -417,62 +417,12 @@ class Floor
 }
 
 
-
 // --------------------
 //    オリフィス
 // --------------------
-Orifice orifice;
 
-class Orifice
-{
-  double level_y;            
-           // 床面のy座標
-  int    touching_grain;     
-           // 一本の砂柱の中の、どの砂粒と接触する可能性があるか
-  double normal_force;       
-           // 接触している砂粒から床が受けるバネの力の反作用（=垂直抗力）
-  double draw_width;         
-           // 床面を長方形で表示するときの幅 (m)
-  double draw_height;        
-           // 床面を長方形で表示するときの高さ (m)
-  double draw_width_left_x;  
-           // 床面長方形左端のx座標 (m) 
-  
-  Orifice(int touching_grain, double level_y)
-  {
-    this.level_y = level_y;
-    this.touching_grain = touching_grain;    // 床と相互作用する粒子番号
-    draw_width = ( SIMULATION_REGION_X_MAX 
-                 - SIMULATION_REGION_X_MIN ) * 0.45;
-    draw_height = SAND_GRAIN_RADIUS*4;
-    draw_width_left_x = - draw_width / 2;
-    
-  }
-  
-  void resetNormalForce()
-  {
-    normal_force = 0.0;
-  }
-  
-  double getNormalForce()
-  {
-    return normal_force;
-  }
-  
-  void draw() 
-  {    
-    stroke(0);
-   
-    fill(180);
-    rect(mapx(draw_width_left_x), 
-         mapy(level_y - draw_height),
-         mapx(draw_width), 
-         mapy(draw_height));
-  }    
-}
+Floor orifice;
 
-
- 
  
 // --------------------
 //    砂粒とその配列
@@ -908,13 +858,13 @@ void initialize()
   sim = new Simulation();
   floor = new Floor( touching_grain, SIMULATION_REGION_Y_MIN*0.8 );
   analyser = new Analyser(sim.dt);
-  orifice = new Orifice(touching_grain, SIMULATION_REGION_Y_MIN*0.05);   //オリフィスの設定
+  orifice = new Floor(touching_grain, SIMULATION_REGION_Y_MIN*0.1);   //オリフィスの設定
   
   double separation = VIRTUAL_SPRING_NATURAL_LENGTH;
   
   double x = floor.draw_width_left_x + ( floor.draw_width / 2 ) ;
   for (int i=0; i<NSGIP; i++) {
-    double  y = SIMULATION_REGION_Y_MIN*0.5 + separation*i;
+    double  y = SIMULATION_REGION_Y_MIN*0.05 + separation*i;
     double vy = 0.0; 
     grains[i] = new Grain(x, y, vy);
   }
@@ -1113,13 +1063,14 @@ void draw_sand_grains_and_floors()
 
   draw_grains();
   floor.draw();
-  // orifice.draw();                                  //オリフィスの描画
+  orifice.draw();                                  //オリフィスの描画
 
   
   if ( RunningStateToggle ) {
     for (int n=0; n<PARAM_VIEW_SPEED; n++) { // to speed up the display
 
-      floor.resetNormalForce();   // reset
+      floor.resetNormalForce();                 // reset
+      orifice.resetNormalForce();
       
       if ( sim.time_keeping_on ) {
 println("sim.time_keeping_on");        
@@ -1128,7 +1079,7 @@ println("sim.time" + sim.time);
 println("sim.get_lap_time() = " + sim.get_lap_time());        
 println("HOURGLASS_SAND_GRAIN_RELEASE_SECOND = " + HOURGLASS_SAND_GRAIN_RELEASE_SECOND);        
 println("calling switch_touching_grain()");        
-          floor.switch_touching_grain();
+          floor.switch_touching_grain();                       //時がきたらorificeに変更
 println("resetting reset_lap_time()");        
           sim.reset_lap_time();
 println("(2nd) sim.get_lap_time() = " + sim.get_lap_time());        
