@@ -879,7 +879,7 @@ void initialize()
   sim = new Simulation();
   floor = new Floor( touching_grain, SIMULATION_REGION_Y_MIN*0.8 );
   analyser = new Analyser(sim.dt);
-  orifice = new Orifice(touching_grain, SIMULATION_REGION_Y_MIN*0.1);   //オリフィスの設定
+  orifice = new Orifice(touching_grain, SIMULATION_REGION_Y_MIN*0.05);   //オリフィスの設定
   
   double separation = VIRTUAL_SPRING_NATURAL_LENGTH;
   
@@ -941,9 +941,9 @@ void equationOfMotion(double  posy[],
       if (overlap_upper > 0){
       
       spring_force_from_upper_neighbor 
-        =  VIRTUAL_SPRING_CONSTANT * ( dist_to_upper_neighbor
-                                      - VIRTUAL_SPRING_NATURAL_LENGTH );
-      spring_damper_force_from_upper_neighbor = SPRING_DAMPER_CONST * vely[i];
+        =  SPRING_CONST * ( dist_to_upper_neighbor
+                                      - SAND_GRAIN_DIAMETER);
+      spring_damper_force_from_upper_neighbor = - SPRING_DAMPER_CONST * (vely[i]-vely[i+1]);
       }
 
         
@@ -963,9 +963,9 @@ void equationOfMotion(double  posy[],
       
       if(overlap_lower > 0){
         spring_force_from_lower_neighbor 
-        = - VIRTUAL_SPRING_CONSTANT * ( dist_to_lower_neighbor
-                                      - VIRTUAL_SPRING_NATURAL_LENGTH );
-        spring_damper_force_from_lower_neighbor = - SPRING_DAMPER_CONST * vely[i];
+        = - SPRING_CONST * ( dist_to_lower_neighbor
+                                      - SAND_GRAIN_DIAMETER);
+        spring_damper_force_from_lower_neighbor = - SPRING_DAMPER_CONST * (vely[i]-vely[i-1]);
       }
     
     }
@@ -1084,7 +1084,7 @@ void draw_sand_grains_and_floors()
 
   draw_grains();
   floor.draw();
-  //orifice.draw();                                  //オリフィスの描画
+  // orifice.draw();                                  //オリフィスの描画
 
   
   if ( RunningStateToggle ) {
