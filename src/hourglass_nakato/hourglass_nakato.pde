@@ -1,6 +1,6 @@
 /*
 
-  hourglass_nakato.pde
+  hourglass_template.pde
 
          
          +---------+
@@ -108,9 +108,9 @@ final int    PARAM_VIEW_SPEED = 2000;
                // 表示速度の加速係数（大きいほど高速再生に見える）
 final double PARAM_SPRING_DAMPER =1.0;      
                // 砂粒のダンパーの減衰係数。1.0なら臨界減衰率               
-final double PARAM_VIRTUAL_SPRING_CONST = 0.01; 
+final double PARAM_SPRING_CONST = 0.01; 
                // 二つの砂粒間の仮想バネのバネ定数を調整するパラメータ
-final double PARAM_VIRTUAL_SPRING_NATURAL_LENGTH = 0.03;
+final double PARAM_SPRING_NATURAL_LENGTH = 0.03;
                // 二つの砂粒間の仮想バネの自然長を調整するパラメータ
 final double PARAM_AVERAGE_TIME_SPAN_HINT = 1.0; 
                // 時間変動するデータの平均値をとる時間（単位は秒）の目安               
@@ -268,9 +268,9 @@ final double CONTACT_DISTANCE_BETWEEN_GRAIN_AND_FLOOR = SAND_GRAIN_RADIUS;
                     o   +   o          o     o     
                      o     o          o   +   o        --.     
                        o o             o     o             Distance between  
-                   ___________       ____o_o____       __. sand grain and floor
+                   ___________       ____o_o____       __. sand grain and floorLower
                       Floor            Just touch 
-                                         on the floor  
+                                         on the floorLower  
             */
 
 
@@ -278,10 +278,10 @@ final double CONTACT_DISTANCE_BETWEEN_GRAIN_AND_FLOOR = SAND_GRAIN_RADIUS;
 //    砂粒間の仮想的なバネ
 // -------------------------
  final double VIRTUAL_SPRING_CONSTANT       
-              = PARAM_VIRTUAL_SPRING_CONST * SPRING_CONST;
+              = PARAM_SPRING_CONST * SPRING_CONST;
                  // 仮想バネのバネ定数 (N/m) 
  final double VIRTUAL_SPRING_NATURAL_LENGTH 
-               = PARAM_VIRTUAL_SPRING_NATURAL_LENGTH * HOURGLASS_HEIGHT;
+               = PARAM_SPRING_NATURAL_LENGTH * HOURGLASS_HEIGHT;
                  // 仮想バネの自然長 (m)
 
 
@@ -359,7 +359,7 @@ boolean RunningStateToggle = false;
 // ----------------
 //    砂時計の床
 // ----------------
-Floor floor;
+Floor floorLower;
 
 class Floor
 {
@@ -421,7 +421,7 @@ class Floor
 //    オリフィス
 // --------------------
 
-Floor orifice;
+Floor floorLowerUpper;
 
  
 // --------------------
@@ -728,7 +728,7 @@ class Energy
 
     double sum = 0.0;
     for (int i=0; i<NSGIP; i++) {
-      double height_of_grain = grains[i].pos_y - floor.level_y;
+      double height_of_grain = grains[i].pos_y - floorLower.level_y;
       sum +=  SAND_GRAIN_MASS 
             * GRAVITY_ACCELERATION 
             * height_of_grain;
@@ -783,11 +783,11 @@ class Energy
       double ell_sq = Math.pow(ell,2);
       sum += 0.5*VIRTUAL_SPRING_CONSTANT*ell_sq; 
   
-      if ( i==floor.touching_grain ) { 
-        double dist_to_floor = pos_y - floor.level_y;
-        positive_check( dist_to_floor, "dist_to_floor < 0?" );
+      if ( i==floorLower.touching_grain ) { 
+        double dist_to_floorLower = pos_y - floorLower.level_y;
+        positive_check( dist_to_floorLower, "dist_to_floorLower < 0?" );
         double overlap = CONTACT_DISTANCE_BETWEEN_GRAIN_AND_FLOOR 
-                       - dist_to_floor;
+                       - dist_to_floorLower;
         if ( overlap > 0 ) {
           double overlap_sq = overlap * overlap;
           sum += 0.5*SPRING_CONST*overlap_sq;
@@ -856,13 +856,13 @@ void initialize()
   int touching_grain = 0;
   
   sim = new Simulation();
-  floor = new Floor( touching_grain, SIMULATION_REGION_Y_MIN*0.9 );
+  floorLower = new Floor( touching_grain, SIMULATION_REGION_Y_MIN*0.9 );
   analyser = new Analyser(sim.dt);
-  orifice = new Floor(touching_grain, - SIMULATION_REGION_Y_MIN*0.2);   //オリフィスの設定
+  floorLowerUpper = new Floor(touching_grain, - SIMULATION_REGION_Y_MIN*0.2);   //オリフィスの設定
   
   double separation = VIRTUAL_SPRING_NATURAL_LENGTH;
   
-  double x = floor.draw_width_left_x + ( floor.draw_width / 2 ) ;
+  double x = floorLower.draw_width_left_x + ( floorLower.draw_width / 2 ) ;
   for (int i=0; i<NSGIP; i++) {
     double  y = - SIMULATION_REGION_Y_MIN*0.25 + separation*i;
     double vy = 0.0; 
@@ -952,20 +952,20 @@ void equationOfMotion(double  posy[],
     //---------------------------
     //  砂時計の底面からの抗力 
     //---------------------------
-    double spring_force_from_floor = 0.0;
-    double spring_damper_force_from_floor = 0.0;    
+    double spring_force_from_floorLower = 0.0;
+    double spring_damper_force_from_floorLower = 0.0;    
     
-    if ( i==floor.touching_grain ) {
-      double dist_to_floor = posy[i] - floor.level_y;
-      positive_check( dist_to_floor, "dist_to_floorLower < 0?" );
+    if ( i==floorLower.touching_grain ) {
+      double dist_to_floorLower = posy[i] - floorLower.level_y;
+      positive_check( dist_to_floorLower, "dist_to_floorLowerLower < 0?" );
       
       double overlap = CONTACT_DISTANCE_BETWEEN_GRAIN_AND_FLOOR 
-                     - dist_to_floor;
+                     - dist_to_floorLower;
       if ( overlap > 0 ) {
-        spring_force_from_floor = SPRING_CONST*overlap; // 上向きの力なので正
-        spring_damper_force_from_floor = - SPRING_DAMPER_CONST * vely[i];        
-        floor.normal_force = spring_force_from_floor 
-                           + spring_damper_force_from_floor;
+        spring_force_from_floorLower = SPRING_CONST*overlap; // 上向きの力なので正
+        spring_damper_force_from_floorLower = - SPRING_DAMPER_CONST * vely[i];        
+        floorLower.normal_force = spring_force_from_floorLower 
+                           + spring_damper_force_from_floorLower;
       }
     }
     
@@ -974,20 +974,20 @@ void equationOfMotion(double  posy[],
     //  オリフィスからの抗力 
     //--------
     
-    double spring_force_from_orifice = 0.0;
-    double spring_damper_force_from_orifice = 0.0;    
+    double spring_force_from_floorLowerUpper = 0.0;
+    double spring_damper_force_from_floorLowerUpper = 0.0;    
     
-    if ( i==orifice.touching_grain ) {
-      double dist_to_orifice = posy[i] - orifice.level_y;
-      positive_check( dist_to_orifice, "dist_to_floorLower < 0?" );
+    if ( i==floorLowerUpper.touching_grain ) {
+      double dist_to_floorLowerUpper = posy[i] - floorLowerUpper.level_y;
+      positive_check( dist_to_floorLowerUpper, "dist_to_floorLowerLower < 0?" );
       
       double overlap = CONTACT_DISTANCE_BETWEEN_GRAIN_AND_FLOOR 
-                     - dist_to_orifice;
+                     - dist_to_floorLowerUpper;
       if ( overlap > 0 ) {
-        spring_force_from_orifice = SPRING_CONST*overlap; // 上向きの力なので正
-        spring_damper_force_from_orifice = - SPRING_DAMPER_CONST * vely[i];        
-        orifice.normal_force = spring_force_from_orifice 
-                           + spring_damper_force_from_orifice;
+        spring_force_from_floorLowerUpper = SPRING_CONST*overlap; // 上向きの力なので正
+        spring_damper_force_from_floorLowerUpper = - SPRING_DAMPER_CONST * vely[i];        
+        floorLowerUpper.normal_force = spring_force_from_floorLowerUpper 
+                           + spring_damper_force_from_floorLowerUpper;
       }
     }
     
@@ -1003,11 +1003,11 @@ void equationOfMotion(double  posy[],
     //-----------------------
     double force_total = spring_force_from_lower_neighbor + spring_damper_force_from_lower_neighbor   //damperの力を足してる
                        + spring_force_from_upper_neighbor + spring_damper_force_from_upper_neighbor
-                       + spring_force_from_floor
+                       + spring_force_from_floorLower
                        + gravity_force
-                       + spring_damper_force_from_floor
-                       +spring_force_from_orifice
-                       +spring_damper_force_from_orifice;
+                       + spring_damper_force_from_floorLower
+                       +spring_force_from_floorLowerUpper
+                       +spring_damper_force_from_floorLowerUpper;
 
     dposy[i] = vely[i] * sim_dt;                       // dy = vy * dt
     dvely[i] = force_total * sim_dt / SAND_GRAIN_MASS; // dvy = (fy/m)*dt
@@ -1063,7 +1063,7 @@ void draw()
   background(255);
   
   push();  
-    draw_sand_grains_and_floors();
+    draw_sand_grains_and_floorLowers();
     draw_text_in_window();
   pop();
 
@@ -1076,7 +1076,7 @@ void draw()
 // -------------------
 //    砂粒と床を表示
 // -------------------
-void draw_sand_grains_and_floors()
+void draw_sand_grains_and_floorLowers()
 {
   stroke(0, 0, 255);
 
@@ -1087,15 +1087,15 @@ void draw_sand_grains_and_floors()
   scale(1, -1);
 
   draw_grains();
-  floor.draw();
-  orifice.draw();                                  //オリフィスの描画
+  floorLower.draw();
+  floorLowerUpper.draw();                                  //オリフィスの描画
 
   
   if ( RunningStateToggle ) {
     for (int n=0; n<PARAM_VIEW_SPEED; n++) { // to speed up the display
 
-      floor.resetNormalForce();                 // reset
-      orifice.resetNormalForce();
+      floorLower.resetNormalForce();                 // reset
+      floorLowerUpper.resetNormalForce();
       
       if ( sim.time_keeping_on ) {
 println("sim.time_keeping_on");        
@@ -1104,7 +1104,7 @@ println("sim.time" + sim.time);
 println("sim.get_lap_time() = " + sim.get_lap_time());        
 println("HOURGLASS_SAND_GRAIN_RELEASE_SECOND = " + HOURGLASS_SAND_GRAIN_RELEASE_SECOND);        
 println("calling switch_touching_grain()");        
-          orifice.switch_touching_grain();                       //時がきたらorificeに変更
+          floorLowerUpper.switch_touching_grain();                       //時がきたらfloorLowerUpperに変更
 println("resetting reset_lap_time()");        
           sim.reset_lap_time();
 println("(2nd) sim.get_lap_time() = " + sim.get_lap_time());        
@@ -1112,7 +1112,7 @@ println("(2nd) sim.get_lap_time() = " + sim.get_lap_time());
       }
 
       rungeKutta4();
-      double hourglass_weight = (floor.getNormalForce() + orifice.getNormalForce())/ GRAVITY_ACCELERATION; //オリフィスにかかる力を加えている
+      double hourglass_weight = (floorLower.getNormalForce() + floorLowerUpper.getNormalForce())/ GRAVITY_ACCELERATION; //オリフィスにかかる力を加えている
       
       analyser.average.register(hourglass_weight);
       analyser.energy.getTotalEnergy();
