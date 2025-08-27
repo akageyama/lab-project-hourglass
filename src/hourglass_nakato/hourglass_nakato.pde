@@ -116,6 +116,8 @@ final double PARAM_AVERAGE_TIME_SPAN_HINT = 1.0;
                // 時間変動するデータの平均値をとる時間（単位は秒）の目安               
 final double PARAM_HOURGLASS_TIME_IN_SECOND = 5;
 
+
+
 // -----------------
 //    基本整数
 // -----------------
@@ -143,9 +145,13 @@ final double HOURGLASS_SAND_GRAIN_RELEASE_SECOND = PARAM_HOURGLASS_TIME_IN_SECON
 // --------
 //    砂
 // --------
-final double SAND_GRAIN_MASS = 1.e-3;                    
+final double SAND_TOTAL_MASS = 0.1;  
+               // 砂全体の質量（kg)
+final double SAND_GRAIN_MASS = SAND_TOTAL_MASS / NSGIP;                     
                // 砂粒一つの質量 (kg)
-final double SAND_GRAIN_DIAMETER = 5.e-3;                    
+final double SAND_PILE_HEIGHT = HOURGLASS_HALF_HEIGHT * 0.8;
+               // 砂粒層の厚さ (m)
+final double SAND_GRAIN_DIAMETER = SAND_PILE_HEIGHT / NSGIP;                    
                // 砂粒の直径 (m) 
 final double SAND_GRAIN_RADIUS = SAND_GRAIN_DIAMETER / 2;  
                // 砂粒の半径 (m)
