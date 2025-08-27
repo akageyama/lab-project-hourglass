@@ -107,6 +107,7 @@ final double PARAM_TIME_STEP = 1.e-3;
 final int    PARAM_VIEW_SPEED = 2000;   
                // 表示速度の加速係数（大きいほど高速再生に見える）
 final double PARAM_SPRING_DAMPER =1.0;      
+//final double PARAM_SPRING_DAMPER =10.0;      
                // 砂粒のダンパーの減衰係数。1.0なら臨界減衰率               
 final double PARAM_SPRING_CONST = 0.01; 
                // 二つの砂粒間の仮想バネのバネ定数を調整するパラメータ
@@ -114,8 +115,8 @@ final double PARAM_SPRING_NATURAL_LENGTH = 0.03;
                // 二つの砂粒間の仮想バネの自然長を調整するパラメータ
 final double PARAM_AVERAGE_TIME_SPAN_HINT = 1.0; 
                // 時間変動するデータの平均値をとる時間（単位は秒）の目安               
-final double PARAM_HOURGLASS_TIME_IN_SECOND = 5;
-
+final double PARAM_HOURGLASS_TIME_IN_SECOND = 5;  
+//final double PARAM_HOURGLASS_TIME_IN_SECOND = 20;
 
 
 // -----------------
