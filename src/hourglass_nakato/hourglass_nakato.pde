@@ -103,16 +103,10 @@ final double TWOPI = 2 * Math.PI;
 // -----------------
 final double PARAM_TIME_STEP = 1.e-3;  
                // 時間刻み幅 dt の制御係数（1e-2は大きすぎ。1e-3程度以下。）
-final int    PARAM_VIEW_SPEED = 3000;   
+final int    PARAM_VIEW_SPEED = 1000;   
                // 表示速度の加速係数（大きいほど高速再生に見える）
-//final double PARAM_SPRING_DAMPER =30.0 ;      
-//final double PARAM_SPRING_DAMPER = 0.0 ;      
 final double PARAM_SPRING_DAMPER =10.0;      
                // 砂粒のダンパーの減衰係数。1.0なら臨界減衰率               
-final double PARAM_SPRING_CONST = 0.01; 
-               // 砂粒のバネ定数
-final double PARAM_SPRING_NATURAL_LENGTH = 0.03;
-               // 砂粒のバネの自然長定数
 final double PARAM_AVERAGE_TIME_SPAN_HINT = 1.0; 
                // 時間変動するデータの平均値をとる時間（単位は秒）の目安               
 final double PARAM_HOURGLASS_TIME_IN_SECOND = 10.0;
@@ -122,7 +116,7 @@ final double PARAM_HOURGLASS_TIME_IN_SECOND = 10.0;
 // -----------------
 //    基本整数
 // -----------------
-final int NSGIP = 100;      
+final int NSGIP = 100;  
             // Number of Sand Grains In a Pillar 一本の砂柱の中の砂粒の数
 
 
@@ -281,15 +275,6 @@ final double CONTACT_DISTANCE_BETWEEN_GRAIN_AND_FLOOR = SAND_GRAIN_RADIUS;
             */
 
 
-// -------------------------
-//    砂粒間の仮想的なバネ
-// -------------------------
- //final double VIRTUAL_SPRING_CONSTANT       
- //             = PARAM_SPRING_CONST * SPRING_CONST;
- //                // 仮想バネのバネ定数 (N/m) 
- //final double VIRTUAL_SPRING_NATURAL_LENGTH 
- //              = PARAM_SPRING_NATURAL_LENGTH * HOURGLASS_HEIGHT;
- //                // 仮想バネの自然長 (m)
 
 
 // ----------------------------------------
@@ -425,7 +410,7 @@ class Floor
 
 
 // --------------------
-//    オリフィス
+//    上の床面（オリフィスのある面）
 // --------------------
 
 Floor floorUpper;
@@ -630,8 +615,6 @@ class Average
     double plot_height = plot_y_max - plot_y_min;
     double weight_min = SAND_GRAIN_MASS*NSGIP * ( 1 - 5.e-1 );
     double weight_max = SAND_GRAIN_MASS*NSGIP * ( 1 + 5.e-1 );
-//    double weight_min = 0.0;
-//    double weight_max = SAND_GRAIN_MASS*NSGIP*20;
     double plot_dx = plot_width / size_for_work_array;
     double plot_dy = plot_height / ( weight_max - weight_min );
 
@@ -838,6 +821,7 @@ class Energy
     double total_energy = potential + kinetic + gravity ;
 
     str_total_energy = nfs((float)total_energy,1,8);
+    // str_total_energy = String.format("%.15e", total_energy);
     return total_energy;
   }
 } 
