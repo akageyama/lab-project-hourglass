@@ -750,15 +750,8 @@ class Energy
           
           弾性ポテンシャルは2種類ある。
 
-              (1) 砂粒と砂粒の間の相互作用のポテンシャル
 
-                     今の場合、仮想バネを想定しているのでバネのポテンシャル
-                        U_s = (1/2) * k' * L^2
-                     ここで k' は仮想バネのバネ定数で、
-                     Lは隣り合う二つの質点の間に想定している仮想バネの伸び、
-                     つまり二つの質点の間の距離と仮想バネの自然長との差である。
-
-              (2) 砂粒と床面が接触しているときのポテンシャルエネルギー
+              (1) 砂粒と下の床面が接触しているときのポテンシャルエネルギー
                      
                      砂粒の中心と床面との距離を d とすると、dがあらかじめ
                      設定した長さ
@@ -777,13 +770,15 @@ class Energy
                      である。ポテンシャルは
                        U_f = (1/2) * k * (L-L0)^2 
                      である。
+
+              (2) 砂粒と上の（オリフィスのある）床面が接触しているときのポテンシャルエネルギー
+                                          
      
      */
+     
     double sum = 0.0;
-    for (int i=0; i<NSGIP-1; i++) {
-      
-      
-      if (i < NSGIP-1){                               //上の粒子と繋がってるバネのエネルギー。i = NSGIP-1 は定義されない
+    for (int i=0; i<NSGIP; i++) {            
+      if (i < NSGIP-1) {    //上の粒子と繋がってるバネのエネルギー。i = NSGIP-1 は定義されない
         double dist_to_upper_neighbor = grains[i+1].pos_y - grains[i].pos_y;
         positive_check( dist_to_upper_neighbor, "dist_to_upper_neighbor < 0?" );
       
@@ -795,7 +790,7 @@ class Energy
         }
       }
       
-      if (i > 0 ){                                  //下の粒子と繋がってるバネのエネルギー。i = 0 は定義されない
+      if (i > 0 ) {  //下の粒子と繋がってるバネのエネルギー。i = 0 は定義されない
         double dist_to_lower_neighbor = grains[i].pos_y - grains[i-1].pos_y;
         positive_check( dist_to_lower_neighbor, "dist_to_upper_neighbor < 0?" );
       
@@ -811,7 +806,7 @@ class Energy
         double dist_to_floorLower = grains[i].pos_y - floorLower.level_y;
         positive_check( dist_to_floorLower, "dist_to_floorLower < 0?" );
         double overlap_floorLower = CONTACT_DISTANCE_BETWEEN_GRAIN_AND_FLOOR 
-                       - dist_to_floorLower;
+                                  - dist_to_floorLower;
         if ( overlap_floorLower> 0 ) {
           double overlap_floorLower_sq = overlap_floorLower * overlap_floorLower;
           sum += 0.5*SPRING_CONST*overlap_floorLower_sq;
@@ -822,7 +817,7 @@ class Energy
         double dist_to_floorUpper = grains[i].pos_y - floorUpper.level_y;
         positive_check( dist_to_floorUpper, "dist_to_floorLower < 0?" );
         double overlap_floorUpper = CONTACT_DISTANCE_BETWEEN_GRAIN_AND_FLOOR 
-                       - dist_to_floorUpper;
+                                  - dist_to_floorUpper;
         if ( overlap_floorUpper> 0 ) {
           double overlap_floorUpper_sq =overlap_floorUpper * overlap_floorUpper;
           sum += 0.5*SPRING_CONST*overlap_floorUpper_sq;
