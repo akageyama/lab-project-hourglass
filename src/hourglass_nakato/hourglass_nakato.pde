@@ -106,17 +106,18 @@ final double PARAM_TIME_STEP = 1.e-3;
                // 時間刻み幅 dt の制御係数（1e-2は大きすぎ。1e-3程度以下。）
 final int    PARAM_VIEW_SPEED = 3000;   
                // 表示速度の加速係数（大きいほど高速再生に見える）
-final double PARAM_SPRING_DAMPER =30.0 ;      
-//final double PARAM_SPRING_DAMPER =10.0;      
+//final double PARAM_SPRING_DAMPER =30.0 ;      
+//final double PARAM_SPRING_DAMPER = 0.0 ;      
+final double PARAM_SPRING_DAMPER =10.0;      
                // 砂粒のダンパーの減衰係数。1.0なら臨界減衰率               
 final double PARAM_SPRING_CONST = 0.01; 
-               // 二つの砂粒間の仮想バネのバネ定数を調整するパラメータ
+               // 砂粒のバネ定数
 final double PARAM_SPRING_NATURAL_LENGTH = 0.03;
-               // 二つの砂粒間の仮想バネの自然長を調整するパラメータ
+               // 砂粒のバネの自然長定数
 final double PARAM_AVERAGE_TIME_SPAN_HINT = 1.0; 
                // 時間変動するデータの平均値をとる時間（単位は秒）の目安               
-final double PARAM_HOURGLASS_TIME_IN_SECOND = 10.0;    //単位は秒(？)
-//final double PARAM_HOURGLASS_TIME_IN_SECOND = 20;
+final double PARAM_HOURGLASS_TIME_IN_SECOND = 10.0;
+               // この砂時計が時間を計る長さ（単位は秒）3分計なら180 second
 
 
 // -----------------
@@ -695,11 +696,12 @@ class Energy
   {
     str_total_energy = " -.--------";
   }
+
   
   double getKineticEnergy()
   {
     /*
-          砂粒の運動エネルギーの和   \sum_{i=0}^{NSGIP-1} (1/2) * m * v_i^2
+         砂粒の運動エネルギーの和   \sum_{i=0}^{NSGIP-1} (1/2) * m * v_i^2
      */
     double sum = 0.0;
     for (int i=0; i<NSGIP; i++) {
@@ -782,7 +784,8 @@ class Energy
         double dist_to_upper_neighbor = grains[i+1].pos_y - grains[i].pos_y;
         positive_check( dist_to_upper_neighbor, "dist_to_upper_neighbor < 0?" );
       
-        double overlap_upper = SAND_GRAIN_DIAMETER - dist_to_upper_neighbor;   //砂粒同士の接触判定は距離が直径以下どうかで判断
+        double overlap_upper = SAND_GRAIN_DIAMETER - dist_to_upper_neighbor;  
+                             //砂粒同士の接触判定は距離が直径以下どうかで判断
       
         if(overlap_upper > 0){
           double overlap_upper_sq = Math.pow(overlap_upper,2);
@@ -794,7 +797,8 @@ class Energy
         double dist_to_lower_neighbor = grains[i].pos_y - grains[i-1].pos_y;
         positive_check( dist_to_lower_neighbor, "dist_to_upper_neighbor < 0?" );
       
-        double overlap_lower = SAND_GRAIN_DIAMETER - dist_to_lower_neighbor;   //砂粒同士の接触判定は距離が直径以下どうかで判断
+        double overlap_lower = SAND_GRAIN_DIAMETER - dist_to_lower_neighbor;   
+                             //砂粒同士の接触判定は距離が直径以下どうかで判断
       
         if(overlap_lower > 0){
           double overlap_lower_sq = Math.pow(overlap_lower,2);
@@ -833,7 +837,7 @@ class Energy
     double gravity   = getGravityPotential();
     double potential = getSpringPotential();
     double total_energy = potential + kinetic + gravity ;
-    
+
     str_total_energy = nfs((float)total_energy,1,8);
     return total_energy;
   }
@@ -894,7 +898,7 @@ void initialize()
   
   double x = floorLower.draw_width_left_x + ( floorLower.draw_width / 2 ) ;
   for (int i=0; i<NSGIP; i++) {
-    double  y = - SIMULATION_REGION_Y_MIN*0.25 + separation*i;
+    double  y = floorUpper.level_y + SAND_GRAIN_RADIUS + separation*i;
     double vy = 0.0; 
     grains[i] = new Grain(x, y, vy);
   }
@@ -945,16 +949,16 @@ void equationOfMotion(double  posy[],
       double dist_to_upper_neighbor = posy[i+1] - posy[i];
       positive_check( dist_to_upper_neighbor, "dist_to_upper_neighbor < 0?" );
       
-      double overlap_upper = SAND_GRAIN_DIAMETER - dist_to_upper_neighbor;    //砂粒同士の接触判定は距離が直径以下どうかで判断
+      double overlap_upper = SAND_GRAIN_DIAMETER - dist_to_upper_neighbor;
+                           // 砂粒同士の接触判定は距離が直径以下どうかで判断
       
       if (overlap_upper > 0){
       
       spring_force_from_upper_neighbor 
         =  SPRING_CONST * ( dist_to_upper_neighbor
-                                      - SAND_GRAIN_DIAMETER);
+                          - SAND_GRAIN_DIAMETER);
       spring_damper_force_from_upper_neighbor = - SPRING_DAMPER_CONST * (vely[i]-vely[i+1]);
       }
-
         
     }
 
@@ -973,7 +977,7 @@ void equationOfMotion(double  posy[],
       if(overlap_lower > 0){
         spring_force_from_lower_neighbor 
         = - SPRING_CONST * ( dist_to_lower_neighbor
-                                      - SAND_GRAIN_DIAMETER);
+                           - SAND_GRAIN_DIAMETER);
         spring_damper_force_from_lower_neighbor = - SPRING_DAMPER_CONST * (vely[i]-vely[i-1]);
       }
     
@@ -995,7 +999,7 @@ void equationOfMotion(double  posy[],
         spring_force_from_floorLower = SPRING_CONST*overlap; // 上向きの力なので正
         spring_damper_force_from_floorLower = - SPRING_DAMPER_CONST * vely[i];        
         floorLower.normal_force = spring_force_from_floorLower 
-                           + spring_damper_force_from_floorLower;
+                                + spring_damper_force_from_floorLower;
       }
     }
     
@@ -1017,7 +1021,7 @@ void equationOfMotion(double  posy[],
         spring_force_from_floorUpper = SPRING_CONST*overlap; // 上向きの力なので正
         spring_damper_force_from_floorUpper = - SPRING_DAMPER_CONST * vely[i];        
         floorUpper.normal_force = spring_force_from_floorUpper 
-                           + spring_damper_force_from_floorUpper;
+                                + spring_damper_force_from_floorUpper;
       }
     }
     
@@ -1031,13 +1035,15 @@ void equationOfMotion(double  posy[],
     //-----------------------
     //  全ての力の和をとる 
     //-----------------------
-    double force_total = spring_force_from_lower_neighbor + spring_damper_force_from_lower_neighbor   //damperの力を足してる
-                       + spring_force_from_upper_neighbor + spring_damper_force_from_upper_neighbor
+    double force_total = spring_force_from_lower_neighbor 
+                       + spring_damper_force_from_lower_neighbor
+                       + spring_force_from_upper_neighbor 
+                       + spring_damper_force_from_upper_neighbor
                        + spring_force_from_floorLower
                        + gravity_force
                        + spring_damper_force_from_floorLower
-                       +spring_force_from_floorUpper
-                       +spring_damper_force_from_floorUpper;
+                       + spring_force_from_floorUpper
+                       + spring_damper_force_from_floorUpper;
 
     dposy[i] = vely[i] * sim_dt;                       // dy = vy * dt
     dvely[i] = force_total * sim_dt / SAND_GRAIN_MASS; // dvy = (fy/m)*dt
@@ -1117,38 +1123,34 @@ void draw_sand_grains_and_floorLowers()
   scale(1, -1);
 
   draw_grains();
-  floorLower.draw();
-  floorUpper.draw();                                  //オリフィスの描画
+  floorLower.draw();  // 上の床面
+  floorUpper.draw();  // 下の床面
 
   
   if ( RunningStateToggle ) {
+    
     for (int n=0; n<PARAM_VIEW_SPEED; n++) { // to speed up the display
 
-      floorLower.resetNormalForce();                 // reset
+      floorLower.resetNormalForce();   // reset
       floorUpper.resetNormalForce();
       
       if ( sim.time_keeping_on ) {
-println("sim.time_keeping_on");        
         if( sim.time - sim.get_lap_time() > HOURGLASS_SAND_GRAIN_RELEASE_SECOND ) {
-println("sim.time" + sim.time);        
-println("sim.get_lap_time() = " + sim.get_lap_time());        
-println("HOURGLASS_SAND_GRAIN_RELEASE_SECOND = " + HOURGLASS_SAND_GRAIN_RELEASE_SECOND);        
-println("calling switch_touching_grain()");        
           floorUpper.switch_touching_grain();                       
-println("resetting reset_lap_time()");        
           sim.reset_lap_time();
-println("(2nd) sim.get_lap_time() = " + sim.get_lap_time());        
         }
       }
 
       rungeKutta4();
-      double hourglass_weight = (floorLower.getNormalForce() + floorUpper.getNormalForce())/ GRAVITY_ACCELERATION; //オリフィスにかかる力を加えている
+
+      double hourglass_force = floorLower.getNormalForce()  // 下の床面と、
+                             + floorUpper.getNormalForce(); // 上の床面にかかる力の合力
+      double hourglass_weight = hourglass_force / GRAVITY_ACCELERATION; 
       
       analyser.average.register(hourglass_weight);
-      analyser.energy.getTotalEnergy();
-      
+
       if ( sim.nstep%10000 == 0 ) {
-        
+        analyser.energy.getTotalEnergy();        
         println(  "#nstep", sim.str_nstep, 
                        "t", sim.str_time, 
                   "energy", analyser.energy.str_total_energy,
@@ -1203,7 +1205,6 @@ void draw_text_in_window()
   text("average2=" + analyser.average.str_avrg_of_array_of_avrg_of_array_of_rawdata, x, y);
   
 }
-
 
 
 // ------------------------------------------------------
