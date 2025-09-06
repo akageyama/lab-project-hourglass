@@ -1,7 +1,6 @@
 /*
 
   hourglass_template.pde
-
          
          +---------+
          |         |
@@ -943,7 +942,7 @@ void equationOfMotion(double  posy[],
     //  上の砂粒との相互作用 
     //-------------------------
     double spring_force_from_upper_neighbor = 0.0;  // default
-    double spring_damper_force_from_upper_neighbor = 0.0;
+    double damper_force_from_upper_neighbor = 0.0;
     
     if ( i < NSGIP-1 ) {
       double dist_to_upper_neighbor = posy[i+1] - posy[i];
@@ -955,9 +954,9 @@ void equationOfMotion(double  posy[],
       if (overlap_upper > 0){
       
       spring_force_from_upper_neighbor 
-        =  SPRING_CONST * ( dist_to_upper_neighbor
-                          - SAND_GRAIN_DIAMETER);
-      spring_damper_force_from_upper_neighbor = - SPRING_DAMPER_CONST * (vely[i]-vely[i+1]);
+            =  SPRING_CONST * ( dist_to_upper_neighbor
+                              - SAND_GRAIN_DIAMETER);
+      damper_force_from_upper_neighbor = - SPRING_DAMPER_CONST * (vely[i]-vely[i+1]);
       }
         
     }
@@ -966,7 +965,7 @@ void equationOfMotion(double  posy[],
     //  下の砂粒との相互作用
     //-------------------------
     double spring_force_from_lower_neighbor = 0.0;
-    double spring_damper_force_from_lower_neighbor = 0.0;
+    double damper_force_from_lower_neighbor = 0.0;
 
     if ( i > 0 ) {
       double dist_to_lower_neighbor = posy[i] - posy[i-1];
@@ -974,11 +973,11 @@ void equationOfMotion(double  posy[],
       
       double overlap_lower = SAND_GRAIN_DIAMETER - dist_to_lower_neighbor;
       
-      if(overlap_lower > 0){
+      if ( overlap_lower > 0 ) {
         spring_force_from_lower_neighbor 
-        = - SPRING_CONST * ( dist_to_lower_neighbor
-                           - SAND_GRAIN_DIAMETER);
-        spring_damper_force_from_lower_neighbor = - SPRING_DAMPER_CONST * (vely[i]-vely[i-1]);
+             = - SPRING_CONST * ( dist_to_lower_neighbor
+                                - SAND_GRAIN_DIAMETER);
+        damper_force_from_lower_neighbor = - SPRING_DAMPER_CONST * (vely[i]-vely[i-1]);
       }
     
     }
@@ -987,7 +986,7 @@ void equationOfMotion(double  posy[],
     //  砂時計の底面からの抗力 
     //---------------------------
     double spring_force_from_floorLower = 0.0;
-    double spring_damper_force_from_floorLower = 0.0;    
+    double damper_force_from_floorLower = 0.0;    
     
     if ( i==floorLower.touching_grain ) {
       double dist_to_floorLower = posy[i] - floorLower.level_y;
@@ -997,9 +996,9 @@ void equationOfMotion(double  posy[],
                      - dist_to_floorLower;
       if ( overlap > 0 ) {
         spring_force_from_floorLower = SPRING_CONST*overlap; // 上向きの力なので正
-        spring_damper_force_from_floorLower = - SPRING_DAMPER_CONST * vely[i];        
+        damper_force_from_floorLower = - SPRING_DAMPER_CONST * vely[i];        
         floorLower.normal_force = spring_force_from_floorLower 
-                                + spring_damper_force_from_floorLower;
+                                + damper_force_from_floorLower;
       }
     }
     
@@ -1009,19 +1008,19 @@ void equationOfMotion(double  posy[],
     //--------
     
     double spring_force_from_floorUpper = 0.0;
-    double spring_damper_force_from_floorUpper = 0.0;    
+    double damper_force_from_floorUpper = 0.0;    
     
     if ( i==floorUpper.touching_grain ) {
       double dist_to_floorUpper = posy[i] - floorUpper.level_y;
-      positive_check( dist_to_floorUpper, "dist_to_floorLowerLower < 0?" );
+      positive_check( dist_to_floorUpper, "dist_to_floorUpper < 0?" );
       
       double overlap = CONTACT_DISTANCE_BETWEEN_GRAIN_AND_FLOOR 
                      - dist_to_floorUpper;
       if ( overlap > 0 ) {
         spring_force_from_floorUpper = SPRING_CONST*overlap; // 上向きの力なので正
-        spring_damper_force_from_floorUpper = - SPRING_DAMPER_CONST * vely[i];        
+        damper_force_from_floorUpper = - SPRING_DAMPER_CONST * vely[i];        
         floorUpper.normal_force = spring_force_from_floorUpper 
-                                + spring_damper_force_from_floorUpper;
+                                + damper_force_from_floorUpper;
       }
     }
     
@@ -1036,14 +1035,14 @@ void equationOfMotion(double  posy[],
     //  全ての力の和をとる 
     //-----------------------
     double force_total = spring_force_from_lower_neighbor 
-                       + spring_damper_force_from_lower_neighbor
+                       + damper_force_from_lower_neighbor
                        + spring_force_from_upper_neighbor 
-                       + spring_damper_force_from_upper_neighbor
+                       + damper_force_from_upper_neighbor
                        + spring_force_from_floorLower
+                       + damper_force_from_floorLower
                        + gravity_force
-                       + spring_damper_force_from_floorLower
                        + spring_force_from_floorUpper
-                       + spring_damper_force_from_floorUpper;
+                       + damper_force_from_floorUpper;
 
     dposy[i] = vely[i] * sim_dt;                       // dy = vy * dt
     dvely[i] = force_total * sim_dt / SAND_GRAIN_MASS; // dvy = (fy/m)*dt
