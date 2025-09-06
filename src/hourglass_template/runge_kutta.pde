@@ -91,7 +91,7 @@ void rungeKutta4()
                      sim.dt);
   
   //the result
-  for (int i=1; i<NSGIP; i++) { 
+  for (int i=0; i<NSGIP; i++) { 
     posywork[i] = posyprev[i] + (
                            ONE_SIXTH*dposy1[i]
                          + ONE_THIRD*dposy2[i]
