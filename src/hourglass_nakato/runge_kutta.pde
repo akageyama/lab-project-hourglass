@@ -33,82 +33,86 @@ void rungeKutta4()
   double[]   dvely3 = new double[NSGIP];
   double[]   dvely4 = new double[NSGIP];
   
-  for (int i=0; i<NSGIP; i++) {
-    posyprev[i] = grains[i].pos_y;
-    velyprev[i] = grains[i].vel_y;
-  }
-
-  //step 1 
-  equationOfMotion(posyprev,
-                   velyprev,
-                     dposy1,
-                     dvely1,
-                     sim.dt);
-  rungeKutta4Advance(NSGIP,
-                     posywork,
-                     velywork,
-                     posyprev,
+  
+  for (int p=0;p<NSP; p++) {
+    for (int i=0; i<NSGIP; i++) {
+      posyprev[i] = grains[p][i].pos_y;
+      velyprev[i] = grains[p][i].vel_y;
+    }
+  
+    //step 1 
+    equationOfMotion(posyprev,
                      velyprev,
                        dposy1,
                        dvely1,
-                          0.5);                        
-  
-  //step 2
-  equationOfMotion(posywork,
-                   velywork,
-                     dposy2,
-                     dvely2,
-                     sim.dt);
-  rungeKutta4Advance(NSGIP,
-                     posywork,
+                       sim.dt);
+    rungeKutta4Advance(NSGIP,
+                       posywork,
+                       velywork,
+                       posyprev,
+                       velyprev,
+                         dposy1,
+                         dvely1,
+                            0.5);                        
+    
+    //step 2
+    equationOfMotion(posywork,
                      velywork,
-                     posyprev,
-                     velyprev,
                        dposy2,
                        dvely2,
-                          0.5);
-                          
-  //step 3
-  equationOfMotion(posywork,
-                   velywork,
-                     dposy3,
-                     dvely3,
-                     sim.dt);
-  rungeKutta4Advance(NSGIP,
-                     posywork,
+                       sim.dt);
+    rungeKutta4Advance(NSGIP,
+                       posywork,
+                       velywork,
+                       posyprev,
+                       velyprev,
+                         dposy2,
+                         dvely2,
+                            0.5);
+                            
+    //step 3
+    equationOfMotion(posywork,
                      velywork,
-                     posyprev,
-                     velyprev,
                        dposy3,
                        dvely3,
-                          1.0);
-
-  //step 4
-  equationOfMotion(posywork,
-                   velywork,
-                     dposy4,
-                     dvely4,
-                     sim.dt);
+                       sim.dt);
+    rungeKutta4Advance(NSGIP,
+                       posywork,
+                       velywork,
+                       posyprev,
+                       velyprev,
+                         dposy3,
+                         dvely3,
+                            1.0);
   
-  //the result
-  for (int i=0; i<NSGIP; i++) { 
-    posywork[i] = posyprev[i] + (
-                           ONE_SIXTH*dposy1[i]
-                         + ONE_THIRD*dposy2[i]
-                         + ONE_THIRD*dposy3[i]
-                         + ONE_SIXTH*dposy4[i] 
-                         );
-    velywork[i] = velyprev[i] + (
-                           ONE_SIXTH*dvely1[i]
-                         + ONE_THIRD*dvely2[i]
-                         + ONE_THIRD*dvely3[i]
-                         + ONE_SIXTH*dvely4[i] 
-                         );
-  }
+    //step 4
+    equationOfMotion(posywork,
+                     velywork,
+                       dposy4,
+                       dvely4,
+                       sim.dt);
+    
+    //the result
+    for (int i=0; i<NSGIP; i++) { 
+      posywork[i] = posyprev[i] + (
+                             ONE_SIXTH*dposy1[i]
+                           + ONE_THIRD*dposy2[i]
+                           + ONE_THIRD*dposy3[i]
+                           + ONE_SIXTH*dposy4[i] 
+                           );
+      velywork[i] = velyprev[i] + (
+                             ONE_SIXTH*dvely1[i]
+                           + ONE_THIRD*dvely2[i]
+                           + ONE_THIRD*dvely3[i]
+                           + ONE_SIXTH*dvely4[i] 
+                           );
+    }
+    
+    for (int i=0; i<NSGIP; i++) {
+      grains[p][i].pos_y = posywork[i];
+      grains[p][i].vel_y = velywork[i];
+    }
   
-  for (int i=0; i<NSGIP; i++) {
-    grains[i].pos_y = posywork[i];
-    grains[i].vel_y = velywork[i];
   }
   
   sim.timeIncrement();
