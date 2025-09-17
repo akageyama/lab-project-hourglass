@@ -20,8 +20,8 @@
 重心の移動を考えるとそれはおかしいということに講義の直前になって気がついた。
 面白い問題であることは間違いない。
 }}
-\author{陰山 聡\\[0.5em] 神戸大学システム情報学研究科}
-\date{2025.05.18}
+\author{陰山 聡$^\dagger$, 中島 涼輔$^\dagger$, 中戸 昂明$^\ddagger$\\[0.5em] $^\dagger$神戸大学システム情報学研究科, $^\ddagger$神戸大学システム情報学部}
+\date{\today}
 
 \begin{comment}
 \end{comment}
@@ -169,7 +169,7 @@ $\Delta t$秒間に砂粒は$\mu \Delta t$個だけ落下する。
 \end{equation}
 %==========
 である。
-この層の重心のy座標を$Y_1(t)$とすると
+この層の重心の$y$座標を$Y_1(t)$とすると
 %==========
 \begin{equation} \label{250703153013} 
    Y_1(t) = \frac{K_1(t)}{2} = \frac{m}{2\rho S_0} ( N - \mu t)
@@ -235,14 +235,14 @@ $\Delta t$秒間に砂粒は$\mu \Delta t$個だけ落下する。
 その時間平均を$F_p>0$とすると
 %==========
 \begin{equation} \label{250703161334} 
-  F_p(f)  = m v_f(t) \mu = m g \mu \tau_f(t)
+  F_p(t)  = m v_f(t) \mu = m g \mu \tau_f(t)
 \end{equation}
 %==========
 である。
 $\mu\tau_f(t)$はこの時刻に落下途中の砂の数なので、
 %==========
 \begin{equation} \label{250703172127} 
-   F_p(f) = \left\{M_0-M_1(t) -M_2(t)\right\} g
+   F_p(t) = \left\{M_0-M_1(t) -M_2(t)\right\} g
 \end{equation}
 %==========
 である。
@@ -343,5 +343,153 @@ $F_2 (>0)$は砂時計の下の床面が物体2を支える抗力である。
 であり、この重さの差はかなり小さい。
 
 
+%=============================================
+\section{メモ: 砂全体の重心を用いた計算との違いについて}
+%=============================================
+砂全体の重心の$y$座標を$Y(t)$、落下中の砂粒の数密度を$n(y)$ (\si{m^{-1}})とすると
+%==========
+\begin{equation} \label{250911130712}
+   Y(t) = \frac{1}{M_0}\left(M_1(t) Y_1(t) + \int_{-H_0+\tilde{K}_2(t)}^0m n(y) y\mathrm{d}y + \tilde{M}_2(t) \tilde{Y}_2(t)\right)
+\end{equation}
+%==========
+となる。ここで、
+%==========
+\begin{equation} \label{250911130817}
+  \tilde{M}_2(t) = M_2(t) + m\int_{-H_0}^{-H_0+\tilde{K}_2(t)}n(y)\mathrm{d}y = M_2(t) + m\mu(\tau_{f0}-\tau_f(t))
+\end{equation}
+%==========
+は、下の砂層の上面が上昇することで、より多くの落下中の砂粒が下の砂層につけ加わることにより、単位時間あたりの質量増分が $m\mu$ よりも大きくなることを勘定に入れた下の砂層の質量である。さらに、その効果を考慮した場合の下の砂層の厚さと重心の$y$座標は、
+%==========
+\begin{align}
+   \tilde{K}_2(t) &= \frac{\tilde{M}_2(t)}{\rho S_0} = K_2(t) + \frac{m\mu}{\rho S_0}(\tau_{f0}-\tau_f(t))  \label{250911174154a}\\
+   \tilde{Y}_2(t) &= -H_0 + \frac{\tilde{K}_2(t)}{2}= Y_2(t) + \frac{m\mu}{2\rho S_0}(\tau_{f0}-\tau_f(t))  \label{250911174154b}
+\end{align}
+%==========
+である。式\eqref{250513083619}を用いることで、$n(y)$ と $\tilde{K}_2(t)$ の陽な表式を求めることなく、式\eqref{250911130817}の中辺の積分を計算でき、その結果、式\eqref{250911130817}の最右辺が得られている。$\tilde{M}_2$ を用いると、砂全体の質量は
+%==========
+\begin{equation} \label{250911135650}
+   M_0 = M_1(t) + m\mu \tau_{f}(t) + \tilde{M}_2(t) = M_1(t) + m\int_{-H_0+\tilde{K}_2(t)}^0n(y) \mathrm{d}y + \tilde{M}_2(t)
+\end{equation}
+%==========
+を満たすことから、式\eqref{250911130712}は重心の定義として矛盾がないことを確認できる。
+
+   
+
+
+式\eqref{250911130712}を時間微分すると、式\eqref{250703154817a}、\eqref{250703154817b} より
+%==========
+\begin{align} \label{250911171454}
+   M_0\frac{\mathrm{d}Y(t)}{\mathrm{d}t} &= \frac{\mathrm{d}M_1(t)}{\mathrm{d}t} Y_1(t) + M_1(t)V_1(t) \notag\\
+   &\qquad- m n(-H_0+\tilde{K}_2(t)) (-H_0+\tilde{K}_2(t))\frac{\mathrm{d}\tilde{K}_2(t)}{\mathrm{d}t} \notag\\
+   &\qquad+ \frac{\mathrm{d}\tilde{M}_2(t)}{\mathrm{d}t} \tilde{Y}_2(t) + \tilde{M}_2(t)\tilde{V}_2(t)
+\end{align}
+%==========
+となる。ここで、
+%==========
+\begin{equation} \label{250911180311}
+   \tilde{V}_2(t) = \frac{\mathrm{d}\tilde{Y}_2(t)}{\mathrm{d}t} = V_2 - \frac{m\mu}{2\rho S_0}\frac{\mathrm{d}\tau_f(t)}{\mathrm{d}t}
+\end{equation}
+%==========
+である。式\eqref{250911171454} を整理するために、ある高さ $y$ における落下中の砂粒の (鉛直上向きを正とした) 速度 $u(y)$ を考える。定義より、$u(-H_0+\tilde{K}_2(t))=-v_f(t)$である。さらに、砂の落下は定常であり、$n(y)$ と $v(y)$ は時間変化しないことから、ある高さ $y$ における砂粒のフラックスが一定となる条件
+%==========
+\begin{equation} \label{250911152410}
+   n(y) (-u(y)) = \mu =\text{const.}
+\end{equation}
+%==========
+を得る。また、
+%==========
+\begin{equation} \label{250911151314}
+   -H_0+\tilde{K}_2(t) = -\frac{g}{2}\tau_f^2(t)
+\end{equation}
+%==========
+より、式\eqref{250703161618} を用いると
+%==========
+\begin{equation} \label{250911183411}
+   \frac{\mathrm{d}\tilde{K}_2(t)}{\mathrm{d}t} = -v_f(t)\frac{\mathrm{d}\tau_f(t)}{\mathrm{d}t}
+\end{equation}
+%==========
+を得る。式\eqref{250911152410}、\eqref{250911183411} を用いると、式\eqref{250911171454} は
+%==========
+\begin{align} \label{250911183814}
+   M_0\frac{\mathrm{d}Y(t)}{\mathrm{d}t} &= \frac{\mathrm{d}M_1(t)}{\mathrm{d}t} Y_1(t) + M_1(t)V_1(t) + m\mu (-H_0+\tilde{K}_2(t))\frac{\mathrm{d}\tau_f(t)}{\mathrm{d}t} \notag\\
+   &\qquad+ \frac{\mathrm{d}\tilde{M}_2(t)}{\mathrm{d}t} \tilde{Y}_2(t) + \tilde{M}_2(t)\tilde{V}_2(t)
+\end{align}
+%==========
+となる。さらに、式\eqref{250911130817}、\eqref{250911174154a}、\eqref{250911174154b}、\eqref{250911180311} を代入し、式\eqref{250703153950}、\eqref{250703154021}、\eqref{250703154424}、\eqref{250703154817b} を用いると、
+%==========
+\begin{align} \label{250911193832}
+   M_0\frac{\mathrm{d}Y(t)}{\mathrm{d}t} &= \frac{\mathrm{d}M_1(t)}{\mathrm{d}t} Y_1(t) + M_1(t)V_1(t) + \frac{\mathrm{d}M_2(t)}{\mathrm{d}t} Y_2(t) + M_2(t)V_2(t) \notag\\
+   &\qquad+\frac{m^2\mu^2}{\rho S_0}(\tau_{f0}-\tau_f(t))
+\end{align}
+%==========
+を得る。
+
+
+
+
+$M_1$, $M_2$, $Y_1$, $Y_2$ が $t$ の 1 次関数であることを考慮し、式\eqref{250911193832} をさらに時間で微分すると、
+%==========
+\begin{equation} \label{250911194752}
+   M_0\frac{\mathrm{d}^2Y(t)}{\mathrm{d}t^2} = 2\frac{\mathrm{d}M_1(t)}{\mathrm{d}t} V_1(t) + 2\frac{\mathrm{d}M_2(t)}{\mathrm{d}t} V_2(t) - \frac{m^2\mu^2}{\rho S_0}\frac{\mathrm{d}\tau_f(t)}{\mathrm{d}t}
+\end{equation}
+%==========
+となる。最終的に式\eqref{250703154817a}、\eqref{250703154817b}、\eqref{250703152655}、\eqref{250703153950}より
+%==========
+\begin{equation} \label{250911195249}
+   M_0\frac{\mathrm{d}^2Y(t)}{\mathrm{d}t^2} = \frac{m^2\mu^2}{\rho S_0}\left(2 - \frac{\mathrm{d}\tau_f(t)}{\mathrm{d}t}\right)
+\end{equation}
+%==========
+を得る。この式は、$\tau_f$ の時間微分の補正項を除いて、式\eqref{250703173105} と $2$ 倍だけ異なる。これは、落下中の砂粒の運動量の時間変化を考慮に入れていなかったことに起因すると考えられる。
+
+
+
+
+そこで、運動方程式\eqref{250703155015a}、\eqref{250703155015b}を以下のように変更する。
+%==========
+\begin{align}
+   \frac{\mathrm{d} }{\mathrm{d} t} \left[M_1(t) V_1(t)\right] &=   - M_1(t) g + F_1(t)  \label{250911195923a} \\
+   \frac{\mathrm{d}}{\mathrm{d}t}\int_{-H_0+\tilde{K}_2(t)}^0 m n(y) u(y) \mathrm{d} y &= - g\int_{-H_0+\tilde{K}_2(t)}^0 m n(y) \mathrm{d}y + F_p(t)  \label{250911195923b} \\
+   \frac{\mathrm{d} }{\mathrm{d} t} \left[\tilde{M}_2(t) \tilde{V}_2(t) \right]  &=  - \tilde{M}_2(t) g -F_p(t)+ F_2(t) \label{250911195923c} 
+\end{align}
+%==========
+ここで、式\eqref{250911195923b} は、落下中の砂粒全体の運動方程式である。これは、式\eqref{250911135650}と式\eqref{250911152410}を用いると
+%==========
+\begin{equation} \label{250911203626}
+   -\frac{\mathrm{d}}{\mathrm{d}t}\int_{-H_0+\tilde{K}_2(t)}^0 m \mu \mathrm{d} y = - \left[M_0-M_1(t)-\tilde{M}_2(t)\right] g + F_p(t)
+\end{equation}
+%==========
+となり、さらに式\eqref{250911174154a}と\eqref{250703154021} を用いると
+%==========
+\begin{equation} \label{250911204756}
+   \frac{m^2\mu^2}{\rho S_0}\left(1-\frac{\mathrm{d}\tau_f(t)}{\mathrm{d}t}\right) = - \left[M_0-M_1(t)-\tilde{M}_2(t)\right] g + F_p(t)
+\end{equation}
+%==========
+を得る。この式の両辺を $0$ として近似したものが式\eqref{250703172127} である。また、式\eqref{250911130817}、\eqref{250911180311}、\eqref{250703153950}、\eqref{250703154817b} を用いると、式\eqref{250911195923c} は
+%==========
+\begin{align} \label{250911213549}
+   \frac{\mathrm{d} }{\mathrm{d} t} \left[M_2(t) V_2(t) \right] &- \frac{m^2\mu^2}{2\rho S_0}\left[(t-\tau_f(t))\frac{\mathrm{d}^2\tau_f(t)}{\mathrm{d}t^2}+2\frac{\mathrm{d}\tau_f(t)}{\mathrm{d}t}-\left(\frac{\mathrm{d}\tau_f(t)}{\mathrm{d}t}\right)^2\right]\notag\\
+    &=  - \tilde{M}_2(t) g -F_p(t)+ F_2(t) 
+\end{align}
+%==========
+となる。式\eqref{250911195923a}、\eqref{250911204756}、\eqref{250911213549} の和をとり、\eqref{250703154817a}、\eqref{250703154817b}、\eqref{250703152655}、\eqref{250703153950}を用いると、
+%==========
+\begin{align} \label{250911230907}
+   \frac{m^2\mu^2}{\rho S_0}\left(2 - \frac{\mathrm{d}\tau_f(t)}{\mathrm{d}t}\right) &- \frac{m^2\mu^2}{2\rho S_0}\left[(t-\tau_f(t))\frac{\mathrm{d}^2\tau_f(t)}{\mathrm{d}t^2}+2\frac{\mathrm{d}\tau_f(t)}{\mathrm{d}t}-\left(\frac{\mathrm{d}\tau_f(t)}{\mathrm{d}t}\right)^2\right] \notag\\
+   & = -M_0 g + F(t) \notag\\
+   & =  M_0\frac{\mathrm{d}^2Y(t)}{\mathrm{d}t^2}
+\end{align}
+%==========
+を得る。式\eqref{250911195249} の補正項と若干の違いはあるが、運動方程式から同様の式を得ることができた。
+
+
+
+
+なお、式\eqref{250703161618}、\eqref{250911183411}、\eqref{250911174154a}、\eqref{250911174154a}を用いると
+%==========
+\begin{equation} \label{250911232221}
+   \frac{\mathrm{d}\tau_f(t)}{\mathrm{d}t} = \frac{m^2\mu^2/\rho S_0}{-mg\mu\tau_f(t)+m^2\mu^2/\rho S_0}
+\end{equation}
+%==========
+とわかる。
 
 \end{document}
