@@ -280,6 +280,40 @@ final double CONTACT_DISTANCE_BETWEEN_GRAIN_AND_FLOOR = SAND_GRAIN_RADIUS;
 
 
 // ----------------------------------------
+//    砂柱毎の時間管理
+// ----------------------------------------
+
+Laptimes laptimes;
+
+class Laptimes
+{
+  double[] laptime = new double[NSP];
+  
+  Laptimes()
+  {
+    randamize_laptime();
+  }
+  
+  void randamize_laptime() {
+    for (int p=0; p<NSP; p++) {
+      laptime[p] = HOURGLASS_SAND_GRAIN_RELEASE_SECOND * Math.random(); //random()は0.0から1.0未満のdouble型の値を返す。
+    }
+  }
+
+  double get_laptime(int p)
+  {
+    return laptime[p];
+  }
+  
+  void reset_laptime(int p)
+  {
+    laptime[p] = sim.time;
+    println("resetting laptime for p = " + p);
+  }
+  
+}
+
+// ----------------------------------------
 //    シミュレーションの時刻とステップ数
 // ----------------------------------------
 Simulation sim;
@@ -291,16 +325,11 @@ class Simulation
   double dt;
   
   boolean time_keeping_on;  // 計時しているかどうか
-  double lap_time;
   
   String str_time;
   String str_nstep;
   String str_dt;
   
-  boolean[] initial_drop = new boolean[NSP];    //それぞれの砂柱について最初のドロップがあったかどうかを格納。初期値はfalse。
-  double[] initial_phase = new double[NSP];     //それぞれの砂柱について最初のドロップがあるまでの時間を格納。
-  
-
   Simulation() 
   {
     time = 0.0;  // シミュレーションの時刻 (s) 
@@ -314,31 +343,11 @@ class Simulation
     str_nstep = nfs(nstep, 9);
     str_dt    = nfs((float)dt,1,8);
     time_keeping_on = false;
-    lap_time = 0.0;
   }
-  
-  
-  void initializing()
-  {
-    for(int p=0; p<NSP;p++){
-      initial_phase[p] = HOURGLASS_SAND_GRAIN_RELEASE_SECOND * Math.random(); //random()は0.0から1.0未満のdouble型の値を返す。 
-    }
-  } 
   
   void start_time_keeping()
   {
     time_keeping_on = true;
-    reset_lap_time(); 
-  }
-  
-  double get_lap_time()
-  {
-    return lap_time;
-  }
-  
-  void reset_lap_time()
-  {
-    lap_time = time;
   }
   
   void stepIncrement()
@@ -441,6 +450,9 @@ Floor floorUpper;
 // --------------------
 
 Grain[][] grains = new Grain[NSP][NSGIP];     // [砂柱の数][砂粒の数]
+double[] phaseShiftForEachPillar = new double[NSP];     //それぞれの砂柱について最初のドロップがあるまでの時間を格納。
+  
+
   /*
           When NSGIP=3
       
@@ -914,12 +926,10 @@ void initialize()
   floorLower = new Floor( touching_grain, SIMULATION_REGION_Y_MIN*0.9 );
   analyser = new Analyser(sim.dt);
   floorUpper = new Floor(touching_grain, - SIMULATION_REGION_Y_MIN*0.0);   //Upperfloorの設定
+  laptimes = new Laptimes();
   
   double separation = SAND_GRAIN_DIAMETER;    // 砂粒の初期距離は直径でok
   
-  
-  
-  sim.initializing();
   
   for (int p=0; p<NSP; p++){
     double x = floorLower.draw_width_left_x +  floorLower.draw_width * p / (NSP-1) ; //植木算に注意　NSP-1でok
@@ -958,7 +968,7 @@ void equationOfMotion(double  posy[],
                       double dposy[],
                       double dvely[],
                       double sim_dt, 
-                      int  the_number_of_sand_pillar)   //砂柱の番号 (0 以上 NSP-1以下)
+                      int  pillar_id)   //砂柱の番号 (0 以上 NSP-1以下)
 {
   /*
        一つの砂柱の中の全砂粒の運動をニュートンの運動方程式にしたがって解く
@@ -1017,7 +1027,7 @@ void equationOfMotion(double  posy[],
     double spring_force_from_floorLower = 0.0;
     double damper_force_from_floorLower = 0.0;    
     
-    if ( i==floorLower.touching_grain[the_number_of_sand_pillar] ) {
+    if ( i==floorLower.touching_grain[pillar_id] ) {
       double dist_to_floorLower = posy[i] - floorLower.level_y;
       positive_check( dist_to_floorLower, "dist_to_floorLowerLower < 0?" );
       
@@ -1039,7 +1049,7 @@ void equationOfMotion(double  posy[],
     double spring_force_from_floorUpper = 0.0;
     double damper_force_from_floorUpper = 0.0;    
     
-    if ( i==floorUpper.touching_grain[the_number_of_sand_pillar] ) {
+    if ( i==floorUpper.touching_grain[pillar_id] ) {
       double dist_to_floorUpper = posy[i] - floorUpper.level_y;
       positive_check( dist_to_floorUpper, "dist_to_floorLowerLower < 0?" );
       
@@ -1160,21 +1170,13 @@ void draw_sand_grains_and_floorLowers()
       floorUpper.resetNormalForce();
       
       if ( sim.time_keeping_on ) {
-        for (int i = 0;i < NSP; i++){
-          if ( ! sim.initial_drop[i]){   //一つ目のドロップが起こる前
-            if( sim.time - sim.get_lap_time() > sim.initial_phase[i] ) {
-              sim.initial_drop[i] = true;
-              floorUpper.switch_touching_grain(i);                       
-              sim.reset_lap_time();
+        for (int p=0; p<NSP; p++) {
+          if( sim.time - laptimes.get_laptime(p) > HOURGLASS_SAND_GRAIN_RELEASE_SECOND ) {
+println(" switching p = " + p + " time = " + sim.time + "laptime = " + laptimes.get_laptime(p) 
+          + " HOURGLASS_SAND_GRAIN_RELEASE_SECOND = " + HOURGLASS_SAND_GRAIN_RELEASE_SECOND);     
+              floorUpper.switch_touching_grain(p);                       
+              laptimes.reset_laptime(p);
             }
-          }
-          
-          if (sim.initial_drop[i]){     //一つ目のドロップが起こった後
-            if( sim.time - sim.get_lap_time() > HOURGLASS_SAND_GRAIN_RELEASE_SECOND ) {
-              floorUpper.switch_touching_grain(i);                       
-              sim.reset_lap_time();
-            }
-          }
         }
       }
 
@@ -1256,6 +1258,9 @@ void mousePressed() {
 void keyPressed() {
   if ( key=='s' ) {
     sim.start_time_keeping();
+    
+    laptimes.randamize_laptime();
+    
     println("Time keeping.");
   }
 }  

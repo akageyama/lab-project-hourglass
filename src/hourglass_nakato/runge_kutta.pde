@@ -45,7 +45,8 @@ void rungeKutta4()
                      velyprev,
                        dposy1,
                        dvely1,
-                       sim.dt);
+                       sim.dt,
+                       p);
     rungeKutta4Advance(NSGIP,
                        posywork,
                        velywork,
@@ -60,7 +61,8 @@ void rungeKutta4()
                      velywork,
                        dposy2,
                        dvely2,
-                       sim.dt);
+                       sim.dt,
+                       p);
     rungeKutta4Advance(NSGIP,
                        posywork,
                        velywork,
@@ -75,7 +77,8 @@ void rungeKutta4()
                      velywork,
                        dposy3,
                        dvely3,
-                       sim.dt);
+                       sim.dt,
+                       p);
     rungeKutta4Advance(NSGIP,
                        posywork,
                        velywork,
@@ -90,7 +93,8 @@ void rungeKutta4()
                      velywork,
                        dposy4,
                        dvely4,
-                       sim.dt);
+                       sim.dt,
+                       p);
     
     //the result
     for (int i=0; i<NSGIP; i++) { 
