@@ -311,7 +311,6 @@ class Laptimes
   void reset_laptime(int p)
   {
     laptime[p] = sim.time;
-    println("resetting laptime for p = " + p);
   }
   
 }
@@ -1176,8 +1175,6 @@ void draw_sand_grains_and_floorLowers()
       if ( sim.time_keeping_on ) {
         for (int p=0; p<NSP; p++) {
           if( sim.time - laptimes.get_laptime(p) > HOURGLASS_SAND_GRAIN_RELEASE_SECOND ) {
-println(" switching p = " + p + " time = " + sim.time + "laptime = " + laptimes.get_laptime(p) 
-          + " HOURGLASS_SAND_GRAIN_RELEASE_SECOND = " + HOURGLASS_SAND_GRAIN_RELEASE_SECOND);     
               floorUpper.switch_touching_grain(p);                       
               laptimes.reset_laptime(p);
             }
