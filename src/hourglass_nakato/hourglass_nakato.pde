@@ -295,8 +295,11 @@ class Laptimes
   }
   
   void randamize_laptime() {
+    double present_time = sim.time;
     for (int p=0; p<NSP; p++) {
-      laptime[p] = HOURGLASS_SAND_GRAIN_RELEASE_SECOND * Math.random(); //random()は0.0から1.0未満のdouble型の値を返す。
+      laptime[p] = present_time 
+                 + HOURGLASS_SAND_GRAIN_RELEASE_SECOND * Math.random(); 
+                               //random()は0.0から1.0未満のdouble型の値を返す。
     }
   }
 
@@ -312,6 +315,7 @@ class Laptimes
   }
   
 }
+
 
 // ----------------------------------------
 //    シミュレーションの時刻とステップ数
