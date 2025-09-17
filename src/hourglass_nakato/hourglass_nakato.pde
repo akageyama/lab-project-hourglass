@@ -120,7 +120,7 @@ final double PARAM_HOURGLASS_TIME_IN_SECOND = 10.0;    //単位は秒(？)
 // -----------------
 final int NSGIP = 100;      
             // Number of Sand Grains In a Pillar 一本の砂柱の中の砂粒の数
-final int NSP = 3; 
+final int NSP = 10; 
             //Number of Sand Pillars　砂柱の数
 
 // --------------
@@ -938,7 +938,7 @@ void initialize()
   for (int p=0; p<NSP; p++){
     double x = floorLower.draw_width_left_x +  floorLower.draw_width * p / (NSP-1) ; //植木算に注意　NSP-1でok
     for (int i=0; i<NSGIP; i++){
-      double  y = - SIMULATION_REGION_Y_MIN*0.25 + separation*i;
+      double  y = SAND_GRAIN_RADIUS + separation*i;
       double vy = 0.0;
       grains[p][i] =new Grain(x,y,vy);
     }
