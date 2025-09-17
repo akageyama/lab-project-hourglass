@@ -367,7 +367,7 @@ $t=0$で$s=\sqrt{H_0}$になるので式\eqref{250917182147}の複号はプラ�
    \epsilon =  \frac{B}{\sqrt{H_0}}
 \end{equation}
 %==========
-として\textcolor{magenta}{未だ途中。$At/2H_0 \ll 1$が必要}
+とする。
 %==========
 \begin{align}
    K_2(t) &= H_0 - \left\{
@@ -380,16 +380,22 @@ $t=0$で$s=\sqrt{H_0}$になるので式\eqref{250917182147}の複号はプラ�
    				\epsilon  + \sqrt{(1-\epsilon )^2-\frac{At}{H_0}}
    				\right\}^2  \label{250918054717c} \\
    &=    H_0 - H_0\left\{
-   				\epsilon  + \sqrt{1-2\epsilon-\frac{At}{H_0}+\mathcal{O}(\epsilon^2)}
-   				\right\}^2  \label{250918054717d} \\
-   &=   H_0 - H_0\left\{
-   				\epsilon  + \left(1-\epsilon-\frac{At}{2H_0}+\mathcal{O}(\epsilon^2)\right)
-   				\right\}^2 \label{250918054717e} \\
-   &=  H_0 - H_0\left\{
-   				 1-\frac{At}{2H_0}+\mathcal{O}(\epsilon^2)
-   				\right\}^2 \label{250918054717f} 
+   				 \sqrt{1-\frac{At}{H_0}}
+   				\right\}^2  + \mathcal{O}(\epsilon)  \label{250918054717d}\\
+   &=    H_0 - H_0\left(
+   				 1-\frac{At}{H_0}
+   				\right) + \mathcal{O}(\epsilon)  \label{250918054717e}\\
+   &=    \frac{At}{H_0}
+   				+ \mathcal{O}(\epsilon)  \label{250918054717f}
 \end{align}
 %==========
+つまり$\mathcal{O}(\epsilon) $の誤差で微分方程式\eqref{250917180438}の解は
+%==========
+\begin{equation} \label{250918075020} 
+   K_2(t) = \frac{At}{H_0}
+\end{equation}
+%==========
+である。
 
 
 
@@ -398,67 +404,12 @@ $t=\tau_{f0}$で$K_2=0$とすべきであった。
 つまり解は
 %==========
 \begin{equation} \label{250917184208} 
-   K_2(t) =  H_0 - \left\{
-   				B + \sqrt{(\sqrt{H_0}-B)^2-A(t-\tau_{f0})}
-   				\right\}^2  \quad (t\ge \tau_{f0})
+   K_2(t) =  \frac{A(t-\tau_{f0})}{H_0} = \frac{m \mu K_0}{M_0}(t-\tau_{f0})
 \end{equation}
 %==========
 である。
-%これは複雑な関数だが、$t-\tau_{f0} \ll 1$のときには$t$の線形で増加する
-%%==========
-%\begin{align}
-%    K_2(t) &= H_0 - \left\{
-%    				   B + (\sqrt{H}_0-B)\sqrt{
-%				   					1-\frac{A(t-\tau_{f0})}{(\sqrt{H}_0-B)^2}
-%				   				}
-%    				\right\}^2  \label{250917190909a} \\
-%   &\approx H_0 - \left\{
-%    				   B + (\sqrt{H}_0-B)\left[
-%				   					1-\frac{A(t-\tau_{f0})}{2(\sqrt{H}_0-B)^2}
-%				   				\right]
-%    				\right\}^2    \label{250917190909b} \\
-%   &= H_0 - \left\{
-%    				   B + (\sqrt{H}_0-B)
-%				   					-\frac{A(t-\tau_{f0})}{\sqrt{H}_0-B}
-%    				\right\}^2    \label{250917190909c} \\
-%   &=  H_0 - H_0\left\{
-%    				   1
-%				   					-\frac{A(t-\tau_{f0})}{H_0-B\sqrt{H}_0}
-%    				\right\}^2   \label{250917190909d} \\
-%   &\approx
-%   	H_0 - H_0\left\{
-%    				   1
-%				   					- 2 \frac{A(t-\tau_{f0})}{H_0-B\sqrt{H}_0}
-%    				\right\}    \label{250917190909e} \\
-%   &=  2 \frac{A(t-\tau_{f0})}{1-B/\sqrt{H}_0} \quad \text{\textcolor{magenta}{この式変形要確認}}\label{250917190909f} 
-%\end{align}
-%%==========
-あとで使うので$K_2$の時間微分を計算しておく
-%%==========
-%\begin{equation} \label{250917185513} 
-%   \dot{K}_2(t) =   \left\{
-%   				B + \sqrt{(\sqrt{H_0}-B)^2-A(t-\tau_{f0})}
-%   				\right\}^2  
-%				\frac{A}{\sqrt{(\sqrt{H_0}-B)^2-A(t-\tau_{f0})}}			
-%\end{equation}
-%%==========
-%==========
-\begin{equation} \label{250917190039} 
-  \dot{K}_2(t)  = A   
-				\frac{\left\{
-   				B + \sqrt{(\sqrt{H_0}-B)^2-A(t-\tau_{f0})}
-   				\right\}^2}{\sqrt{(\sqrt{H_0}-B)^2-A(t-\tau_{f0})}}	
-\end{equation}
-%==========
 
-$A$と$B$を元に戻すと 
-%==========
-\begin{equation} \label{250917184334} 
-   K_2(t) =  H_0 - \left\{
-   				\frac{m \mu K_0}{M_0\sqrt{2g}} + \sqrt{\left(\sqrt{H_0}-\frac{m \mu K_0}{M_0\sqrt{2g}}\right)^2-\frac{m \mu K_0}{M_0}(t-\tau_{f0})}
-   				\right\}^2  \quad (t\ge \tau_{f0})
-\end{equation}
-%==========
+
 
 \color{black}
 
@@ -586,7 +537,7 @@ $F_2 (>0)$を砂時計の下の床面が物体2を支える抗力、
 式\eqref{250703155015a}から\eqref{250703155015b}の両辺を足すと
 %==========
 \begin{equation} \label{250917103450} 
-  \dot{M}_1 \frac{\dot{K}_1}{2}  + m \mu \dot{K}_2 + \dot{M}_2 \frac{\dot{K}_2}{2} \textcolor{magenta}{+\fbox{???}} =  -(M_1+M_2+M_3) g + F_1 + F_2
+  \dot{M}_1 \frac{\dot{K}_1}{2}  + m \mu \dot{K}_2 + \dot{M}_2 \frac{\dot{K}_2}{2} =  -(M_1+M_2+M_3) g + F_1 + F_2
 \end{equation}
 %==========
 
@@ -595,21 +546,21 @@ $F_2 (>0)$を砂時計の下の床面が物体2を支える抗力、
 %==========
 \begin{align}
    F &= F_1 + F_2  \label{250703170301a} \\
-   &=(M_1(t) + M_2(t)  +M_3(t) )g  \textcolor{magenta}{+\fbox{???}} +  2\frac{m^2\mu^2}{\rho S_0}   \label{250703170301b} \\
-   &=  M_0 g +  2 \frac{m^2\mu^2}{\rho S_0} \textcolor{magenta}{+\fbox{???}}  \label{250703170301c} 
+   &=(M_1(t) + M_2(t)  +M_3(t) )g +  2\frac{m^2\mu^2}{\rho S_0}   \label{250703170301b} \\
+   &=  M_0 g +  2 \frac{m^2\mu^2}{\rho S_0}   \label{250703170301c} 
 \end{align}
 %==========
 つまり計時中の砂時計は右辺第2項
 %==========
 \begin{equation} \label{250703173105} 
-   \Delta W  = 2 \frac{m^2\mu^2}{\rho S_0} \textcolor{magenta}{+\fbox{???}}
+   \Delta W  = 2 \frac{m^2\mu^2}{\rho S_0} 
 \end{equation}
 %==========
 だけ重くなる。
 式\eqref{250515082817}と式\eqref{250703152145}より
 %==========
 \begin{equation} \label{250703173052} 
-    \Delta W  =  2M_0 \frac{K_0}{T_0^2} \textcolor{magenta}{+\fbox{???}}
+    \Delta W  =  2M_0 \frac{K_0}{T_0^2} 
 \end{equation}
 %==========
 とも書ける。
@@ -621,7 +572,7 @@ $F_2 (>0)$を砂時計の下の床面が物体2を支える抗力、
 砂が落ちていないときの砂の層の厚さを$K_0$、砂の全質量を$M_0$、砂時計が測る時間を$T_0$とすると、砂が落下しているときの砂時計は、
 %==========
 \begin{equation} \label{250518122927} 
-   \Delta W = 2 M_0 \frac{K_0}{T_0^2} \textcolor{magenta}{+\fbox{???}}
+   \Delta W = 2 M_0 \frac{K_0}{T_0^2} 
 \end{equation}
 %==========
 だけ重くなる。
