@@ -106,20 +106,20 @@ final double PARAM_TIME_STEP = 1.e-3;
                // 時間刻み幅 dt の制御係数（1e-2は大きすぎ。1e-3程度以下。）
 final int    PARAM_VIEW_SPEED = 2000;   
                // 表示速度の加速係数（大きいほど高速再生に見える）
-final double PARAM_SPRING_DAMPER =1.0 ;      
-//final double PARAM_SPRING_DAMPER =10.0;      
+//final double PARAM_SPRING_DAMPER =1.0 ;      
+final double PARAM_SPRING_DAMPER = 10.0;      
                // 砂粒のダンパーの減衰係数。1.0なら臨界減衰率               
 final double PARAM_AVERAGE_TIME_SPAN_HINT = 1.0; 
                // 時間変動するデータの平均値をとる時間（単位は秒）の目安               
-final double PARAM_HOURGLASS_TIME_IN_SECOND = 10.0;    //単位は秒
-
+final double PARAM_HOURGLASS_TIME_IN_SECOND = 10.0; 
+               // この砂時計が時間を計る長さ（単位は秒）3分計なら180 second
 
 // -----------------
 //    基本整数
 // -----------------
-final int NSGIP = 100;      
+final int NSGIP = 50;      
             // Number of Sand Grains In a Pillar 一本の砂柱の中の砂粒の数
-final int NSP = 10; 
+final int NSP = 20; 
             //Number of Sand Pillars　砂柱の数
 
 // --------------
@@ -132,7 +132,7 @@ final double GRAVITY_ACCELERATION = 9.80665;
 // -----------
 //    砂時計
 // -----------
-final double HOURGLASS_HEIGHT = 1.0;  
+final double HOURGLASS_HEIGHT = 4.0;  
                // 砂時計の高さ (m)
 final double HOURGLASS_HALF_HEIGHT = HOURGLASS_HEIGHT / 2;  
                // 半分
@@ -142,11 +142,11 @@ final double HOURGLASS_SAND_GRAIN_RELEASE_SECOND = PARAM_HOURGLASS_TIME_IN_SECON
 // --------
 //    砂
 // --------
-final double SAND_TOTAL_MASS = 0.1;  
+final double SAND_TOTAL_MASS = 1.0;  
                // 砂全体の質量（kg)
-final double SAND_GRAIN_MASS = SAND_TOTAL_MASS / NSGIP;                     
+final double SAND_GRAIN_MASS = SAND_TOTAL_MASS / (NSP*NSGIP);                     
                // 砂粒一つの質量 (kg)
-final double SAND_PILE_HEIGHT = HOURGLASS_HALF_HEIGHT * 0.8;
+final double SAND_PILE_HEIGHT = HOURGLASS_HALF_HEIGHT / 2;
                // 砂粒層の厚さ (m)
 final double SAND_GRAIN_DIAMETER = SAND_PILE_HEIGHT / NSGIP;                    
                // 砂粒の直径 (m) 
@@ -384,8 +384,6 @@ class Floor
            // 床面のy座標
   int[] touching_grain = new int[NSP];     
            // 一本の砂柱の中の、どの砂粒と接触する可能性があるか
-  double normal_force;       
-           // 接触している砂粒から床が受けるバネの力の反作用（=垂直抗力）
   double draw_width;         
            // 床面を長方形で表示するときの幅 (m)
   double draw_height;        
@@ -395,28 +393,18 @@ class Floor
   
   
  
-    Floor(int touching_grain, double level_y)
-    {
-      for(int i=0; i < NSP; i++){
-        this.touching_grain[i] = touching_grain;    // 床と相互作用する粒子番号
-      }
-      
-      this.level_y = level_y;
-      draw_width = ( SIMULATION_REGION_X_MAX 
-                   - SIMULATION_REGION_X_MIN ) * 0.75;
-      draw_height = SAND_GRAIN_RADIUS*4;
-      draw_width_left_x = - draw_width / 2;
-      
+  Floor(int touching_grain, double level_y)
+  {
+    for(int i=0; i < NSP; i++){
+      this.touching_grain[i] = touching_grain;    // 床と相互作用する粒子番号
     }
-  
-  void resetNormalForce()
-  {
-    normal_force = 0.0;
-  }
-  
-  double getNormalForce()
-  {
-    return normal_force;
+    
+    this.level_y = level_y;
+    draw_width = ( SIMULATION_REGION_X_MAX 
+                 - SIMULATION_REGION_X_MIN ) * 0.75;
+    draw_height = SAND_GRAIN_RADIUS*4;
+    draw_width_left_x = - draw_width / 2;
+    
   }
   
   void switch_touching_grain(int i)
@@ -651,14 +639,14 @@ class Average
     double plot_y_max = 0.95*height;
     double plot_width  = plot_x_max - plot_x_min;
     double plot_height = plot_y_max - plot_y_min;
-    double weight_min = SAND_GRAIN_MASS*NSGIP * ( 1 - 5.e-1 );
-    double weight_max = SAND_GRAIN_MASS*NSGIP * ( 1 + 5.e-1 );
+    double weight_min = SAND_TOTAL_MASS * ( 1 - 5.e-1 );
+    double weight_max = SAND_TOTAL_MASS * ( 1 + 5.e-1 );
     double plot_dx = plot_width / size_for_work_array;
     double plot_dy = plot_height / ( weight_max - weight_min );
 
     double y_minus = plot_y_min;
-    double y_zero  = plot_y_min + plot_dy*(SAND_GRAIN_MASS*NSGIP-weight_min);
-    double y_plus  = plot_y_min + plot_dy*(weight_max            -weight_min);
+    double y_zero  = plot_y_min + plot_dy*(SAND_TOTAL_MASS-weight_min);
+    double y_plus  = plot_y_min + plot_dy*(weight_max     -weight_min);
 
     float fx_min   = (float)plot_x_min;
     float fx_max   = (float)plot_x_max;
@@ -778,13 +766,7 @@ class Energy
           
           弾性ポテンシャルは2種類ある。
 
-              (1) 砂粒と砂粒の間の相互作用のポテンシャル
-
-                     今の場合、仮想バネを想定しているのでバネのポテンシャル
-                        U_s = (1/2) * k' * L^2
-                     ここで k' は仮想バネのバネ定数で、
-                     Lは隣り合う二つの質点の間に想定している仮想バネの伸び、
-                     つまり二つの質点の間の距離と仮想バネの自然長との差である。
+              (1) 砂粒と砂粒が接触しているときのポテンシャルエネルギー
 
               (2) 砂粒と床面が接触しているときのポテンシャルエネルギー
                      
@@ -812,11 +794,12 @@ class Energy
     for(int p=0; p<NSP;p++){
       for(int i=0; i<NSGIP; i++){
         
-        if (i < NSGIP-1){  //上の粒子と繋がってるバネのエネルギー。j = NSGIP-1 は定義されない
+        if (i < NSGIP-1){  //上の粒子との接触時のバネポテンシャル。一番上の砂（j=NSGIP-1）はスキップ 
           double dist_to_upper_neighbor = grains[p][i+1].pos_y - grains[p][i].pos_y;
           positive_check( dist_to_upper_neighbor, "dist_to_upper_neighbor < 0?" );
       
-          double overlap_upper = SAND_GRAIN_DIAMETER - dist_to_upper_neighbor;   //砂粒同士の接触判定は距離が直径以下どうかで判断
+          double overlap_upper = SAND_GRAIN_DIAMETER - dist_to_upper_neighbor;   
+                               // 砂粒同士の距離が直径なら接触と判定
       
           if(overlap_upper > 0){
             double overlap_upper_sq = Math.pow(overlap_upper,2);
@@ -824,11 +807,12 @@ class Energy
           }
         }
         
-        if (i > 0 ){    //下の粒子と繋がってるバネのエネルギー。j = 0 は定義されない
+        if (i > 0 ){    // 下の粒子との接触時のバネポテンシャル。一番下の砂（j=0）はスキップ 
           double dist_to_lower_neighbor = grains[p][i].pos_y - grains[p][i-1].pos_y;
           positive_check( dist_to_lower_neighbor, "dist_to_upper_neighbor < 0?" );
       
-          double overlap_lower = SAND_GRAIN_DIAMETER - dist_to_lower_neighbor;   //砂粒同士の接触判定は距離が直径以下どうかで判断
+          double overlap_lower = SAND_GRAIN_DIAMETER - dist_to_lower_neighbor;   
+                              // 砂粒同士の距離が直径なら接触と判定
       
           if(overlap_lower > 0){
             double overlap_lower_sq = Math.pow(overlap_lower,2);
@@ -1004,13 +988,13 @@ void equationOfMotion(double  posy[],
       double dist_to_upper_neighbor = posy[i+1] - posy[i];
       positive_check( dist_to_upper_neighbor, "dist_to_upper_neighbor < 0?" );
       
-      double overlap_upper = SAND_GRAIN_DIAMETER - dist_to_upper_neighbor;    //砂粒同士の接触判定は距離が直径以下どうかで判断
+      double overlap_upper = SAND_GRAIN_DIAMETER - dist_to_upper_neighbor;   
+                            //  砂粒同士の距離が直径なら接触と判定
       
       if (overlap_upper > 0){
       
-      spring_force_from_upper_neighbor 
-        =  SPRING_CONST * ( dist_to_upper_neighbor
-                                      - SAND_GRAIN_DIAMETER);
+      spring_force_from_upper_neighbor =  SPRING_CONST * ( dist_to_upper_neighbor
+                                                         - SAND_GRAIN_DIAMETER );
       damper_force_from_upper_neighbor = - DAMPER_CONST * (vely[i]-vely[i+1]);
       }
 
@@ -1028,11 +1012,11 @@ void equationOfMotion(double  posy[],
       positive_check( dist_to_lower_neighbor, "dist_to_lower_neighbor < 0?" );
       
       double overlap_lower = SAND_GRAIN_DIAMETER - dist_to_lower_neighbor;
+                            //  砂粒同士の距離が直径なら接触と判定
       
       if(overlap_lower > 0){
-        spring_force_from_lower_neighbor 
-        = - SPRING_CONST * ( dist_to_lower_neighbor
-                                      - SAND_GRAIN_DIAMETER);
+        spring_force_from_lower_neighbor = - SPRING_CONST * ( dist_to_lower_neighbor
+                                                            - SAND_GRAIN_DIAMETER );
         damper_force_from_lower_neighbor = - DAMPER_CONST * (vely[i]-vely[i-1]);
       }
     
@@ -1053,8 +1037,6 @@ void equationOfMotion(double  posy[],
       if ( overlap > 0 ) {
         spring_force_from_floorLower = SPRING_CONST*overlap; // 上向きの力なので正
         damper_force_from_floorLower = - DAMPER_CONST * vely[i];        
-        floorLower.normal_force = spring_force_from_floorLower 
-                           + damper_force_from_floorLower;
       }
     }
     
@@ -1075,8 +1057,6 @@ void equationOfMotion(double  posy[],
       if ( overlap > 0 ) {
         spring_force_from_floorUpper = SPRING_CONST*overlap; // 上向きの力なので正
         damper_force_from_floorUpper = - DAMPER_CONST * vely[i];        
-        floorUpper.normal_force = spring_force_from_floorUpper 
-                           + damper_force_from_floorUpper;
       }
     }
     
@@ -1090,8 +1070,10 @@ void equationOfMotion(double  posy[],
     //-----------------------
     //  全ての力の和をとる 
     //-----------------------
-    double force_total = spring_force_from_lower_neighbor + damper_force_from_lower_neighbor   //damperの力を足してる
-                       + spring_force_from_upper_neighbor + damper_force_from_upper_neighbor
+    double force_total = spring_force_from_lower_neighbor 
+                       + damper_force_from_lower_neighbor
+                       + spring_force_from_upper_neighbor
+                       + damper_force_from_upper_neighbor
                        + spring_force_from_floorLower
                        + damper_force_from_floorLower
                        + spring_force_from_floorUpper
@@ -1101,6 +1083,55 @@ void equationOfMotion(double  posy[],
     dposy[i] = vely[i] * sim_dt;                       // dy = vy * dt
     dvely[i] = force_total * sim_dt / SAND_GRAIN_MASS; // dvy = (fy/m)*dt
   }
+}
+
+
+double calc_total_normal_force()
+{  
+  double sum = 0;  // 上の床と下の床がそれぞれの砂柱を支える抗力の総和を計算する
+  
+  for (int p = 0; p < NSP; p++) {
+
+    //---------------------------
+    //  砂時計の下の面からの抗力 
+    //---------------------------
+
+    int il = floorLower.touching_grain[p];
+    
+    if ( il >= 0 && il < NSGIP ) {
+      double dist_to_floor = grains[p][il].pos_y - floorLower.level_y;
+      positive_check( dist_to_floor, "dist_to_floorLowerLower < 0?" );
+      
+      double overlap = CONTACT_DISTANCE_BETWEEN_GRAIN_AND_FLOOR  - dist_to_floor;
+      if ( overlap > 0 ) {
+        double spring_force_from_floor =   SPRING_CONST * overlap; // 上向きの力なので正
+        double damper_force_from_floor = - DAMPER_CONST * grains[p][il].vel_y;        
+        sum += spring_force_from_floor + damper_force_from_floor;
+      }
+    }
+    
+    //---------------------------
+    //  砂時計の上の面からの抗力 
+    //---------------------------
+
+    int iu = floorUpper.touching_grain[p];
+    
+    if ( iu >= 0 && iu < NSGIP ) {
+      double dist_to_floor = grains[p][iu].pos_y - floorUpper.level_y;
+      positive_check( dist_to_floor, "dist_to_floorLowerUpper < 0?" );
+      
+      double overlap = CONTACT_DISTANCE_BETWEEN_GRAIN_AND_FLOOR  - dist_to_floor;
+      if ( overlap > 0 ) {
+        double spring_force_from_floor =   SPRING_CONST * overlap; // 上向きの力なので正
+        double damper_force_from_floor = - DAMPER_CONST * grains[p][iu].vel_y;        
+        sum += spring_force_from_floor + damper_force_from_floor;
+      }
+    }
+  }
+  
+  double total_norma_force_by_all_pillars = sum;
+  
+  return total_norma_force_by_all_pillars; 
 }
 
 
@@ -1177,14 +1208,11 @@ void draw_sand_grains_and_floorLowers()
 
   draw_grains();
   floorLower.draw();
-  floorUpper.draw();                                  //オリフィスの描画
+  floorUpper.draw(); 
 
   
   if ( RunningStateToggle ) {
     for (int n=0; n<PARAM_VIEW_SPEED; n++) { // to speed up the display
-
-      floorLower.resetNormalForce();                 // reset
-      floorUpper.resetNormalForce();
       
       if ( sim.time_keeping_on ) {
         for (int p=0; p<NSP; p++) {
@@ -1196,7 +1224,8 @@ void draw_sand_grains_and_floorLowers()
       }
 
       rungeKutta4();
-      double hourglass_weight = (floorLower.getNormalForce() + floorUpper.getNormalForce())/ GRAVITY_ACCELERATION; //オリフィスにかかる力を加えている
+      
+      double hourglass_weight = calc_total_normal_force() / GRAVITY_ACCELERATION; 
       
       analyser.average.register(hourglass_weight);
       analyser.energy.getTotalEnergy();
