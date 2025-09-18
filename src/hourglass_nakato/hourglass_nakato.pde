@@ -111,8 +111,7 @@ final double PARAM_SPRING_DAMPER =1.0 ;
                // 砂粒のダンパーの減衰係数。1.0なら臨界減衰率               
 final double PARAM_AVERAGE_TIME_SPAN_HINT = 1.0; 
                // 時間変動するデータの平均値をとる時間（単位は秒）の目安               
-final double PARAM_HOURGLASS_TIME_IN_SECOND = 10.0;    //単位は秒(？)
-//final double PARAM_HOURGLASS_TIME_IN_SECOND = 20;
+final double PARAM_HOURGLASS_TIME_IN_SECOND = 10.0;    //単位は秒
 
 
 // -----------------
@@ -933,9 +932,24 @@ void initialize()
   
   double separation = SAND_GRAIN_DIAMETER;    // 砂粒の初期距離は直径でok
   
+  /*
+         pillars
+            
+            o     o     o
+            o     o     o
+            o     o     o
+        |-------------------|
+        |<----------------->|   floorLower.draw_width
+        |<->|           |<->|   delta_x
+        |   |<--------->|   |   span_x
+                
+  */
+  double delta_x = floorLower.draw_width * 0.1;  // 計算に無関係。表示にのみ関係。
+  double span_x = floorLower.draw_width - 2*delta_x;  // 計算に無関係。表示にのみ関係。
   
   for (int p=0; p<NSP; p++){
-    double x = floorLower.draw_width_left_x +  floorLower.draw_width * p / (NSP-1) ; //植木算に注意　NSP-1でok
+    double x = floorLower.draw_width_left_x
+             + delta_x + span_x * p / (NSP-1) ; //植木算に注意　NSP-1でok
     for (int i=0; i<NSGIP; i++){
       double  y = SAND_GRAIN_RADIUS + separation*i;
       double vy = 0.0;
