@@ -290,7 +290,7 @@ class Laptimes
   
   Laptimes()
   {
-    randamize_laptime();
+    initialize_laptime();
   }
   
   void randamize_laptime() {
@@ -299,6 +299,36 @@ class Laptimes
       laptime[p] = present_time 
                  + HOURGLASS_SAND_GRAIN_RELEASE_SECOND * Math.random(); 
                                //random()は0.0から1.0未満のdouble型の値を返す。
+    }
+  }
+
+  void initialize_laptime() {
+    // 各砂柱の位相のずれを乱数で決めるのではなく、
+    // 周期 tau を砂柱の数NSPで等分して、割り当てる。
+    // 単純に、p番目の砂柱のlaptimeを
+    //     phase[p] = tau / NSP * p
+    // と決めると、左の砂柱から順番に砂が落ち始めるので見た目は綺麗だが少々違和感がある。
+    // そこでここではq番目の砂柱のphaseを
+    //     phase[q] = tau / NSP * p
+    // と与え、qは乱数で決めることことにした。
+    
+    double present_time = sim.time;
+    
+    boolean[] not_yet_set = new boolean[NSP];
+    
+    for (int p=0; p<NSP; p++ ) {
+      not_yet_set[p] = true;
+    }
+    
+    int p = 0;
+    for (;;) {
+      int q = (int)(NSP * Math.random());      
+      if ( q >= 0 && q < NSP && not_yet_set[q] ) {
+          laptime[q] = present_time + HOURGLASS_SAND_GRAIN_RELEASE_SECOND / NSP * p;
+          p += 1;
+          if ( p==NSP ) return;
+          not_yet_set[q] = false;
+      }
     }
   }
 
@@ -1303,7 +1333,7 @@ void keyPressed() {
   if ( key=='s' ) {
     sim.start_time_keeping();
     
-    laptimes.randamize_laptime();
+    laptimes.initialize_laptime();
     
     println("Time keeping.");
   }
