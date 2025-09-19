@@ -1316,6 +1316,14 @@ void draw_text_in_window()
   text("average1=" + analyser.average.str_avrg_of_array_of_rawdata, x, y);
   y += separation;
   text("average2=" + analyser.average.str_avrg_of_array_of_avrg_of_array_of_rawdata, x, y);
+
+  y += separation;
+  double m0 = SAND_TOTAL_MASS;
+  double t0 = PARAM_HOURGLASS_TIME_IN_SECOND;
+  double l0 = SAND_PILE_HEIGHT;
+  double theoretically_estimated_weight_diff = m0 + 2*m0*l0/(t0*t0)/GRAVITY_ACCELERATION;
+  String theoretical_value = nfs((float)theoretically_estimated_weight_diff,1,8);
+  text("theory val:" + theoretical_value, x, y);
   
 }
 
