@@ -119,7 +119,7 @@ final double PARAM_HOURGLASS_TIME_IN_SECOND = 10.0;
 // -----------------
 final int NSGIP = 20;      
             // Number of Sand Grains In a Pillar 一本の砂柱の中の砂粒の数
-final int NSP = 4; 
+final int NSP = 14; 
             //Number of Sand Pillars　砂柱の数
 
 // --------------
