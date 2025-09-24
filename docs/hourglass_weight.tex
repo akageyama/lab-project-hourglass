@@ -30,7 +30,7 @@
 \begin{document}
 
 \color{magenta}
-原稿 ver.~250923： シミュレーション学会和文論文誌に投稿予定
+原稿 ver.~250923b： シミュレーション学会和文論文誌に投稿予定
 \vspace{1em}
 \color{black}
 
@@ -38,15 +38,26 @@
 \begin{abstract}
 砂時計の砂が落ちている間、砂時計の重さはわずかに重くなることが知られている。
 その重さの変化はとても小さいので、この効果をシミュレーションで定量的に再現するには工夫が必要である。
-本研究では、砂時計内部の砂を質量が変動する物体からなる系とみなし、
-運動方程式に基づいて砂時計が重くなる要因を明らかにした上で、
-砂粒の鉛直方向の運動に注目した1次元シミュレーションモデルを構築した。
-このシミュレーションは、ソフトスフィアモデルに基づいた個別要素法シミュレーションである。
-Processing言語で実装したこのシミュレーションはノートPCで実行することが可能である。
+本研究ではまず、砂時計が重くなる複数の要因を可変質量物体の力学に基づいて理論的に分離した。
+その要因とは、砂時計内部の砂の層（落ちる前の上部の層と落ちた後の下部の層）の厚みの時間変化によるものと、
+自由落下する砂粒の落下距離が時間の経過と共に短くなる効果によるもの2種類があり、どちらも同じだけ寄与する。
+さらに、この解析結果に基づいた個別要素法に基づいたシミュレーションモデルを構築した。
+これは、複数の砂の柱を想定し、個々の砂柱の中の砂粒が一定の割合で落下し、下部に積み上がっていくというモデルである。
+Processing言語で実装したこのシミュレーションはノートPCで実行することが可能で、
+理論的に予測される砂時計の重みのわずかな増分をシミュレーションで定量的に再現することに成功した。
 
 
 \vspace{1em}
-It is known that the weight of an hourglass increases slightly while the sand is falling. This weight change is so small that quantifying the effect in simulations is difficult. We first identify the essential factors that lead to the weight increase by modeling the sand in the hourglass as a system of varying-mass objects. We then developed a discrete element method simulation model based on the soft sphere model. Having implemented the model in the Processing language, we run this simulation on a notebook PC.
+It is known that the weight of an hourglass increases slightly while the sand is falling.
+Because this weight change is extremely small, reproducing this effect quantitatively in simulations requires careful consideration.
+We first theoretically separated the multiple factors contributing to the increase in the hourglass's weight based on the dynamics of varying mass objects.
+These factors are: 1) The temporal change in the thickness of the sand layers inside the hourglass (the upper layer before falling and the lower layer after falling), and 2) The effect that the falling distance of freely falling sand grains becomes shorter over time. 
+Both factors contribute equally.
+A simulation model using the discrete element method was constructed based on these analytical results.
+This model assumes multiple sand pillars, with sand grains within each pillar falling at a constant rate and accumulating at the bottom.
+Implemented in the Processing language, this simulation can run on a notebook PC.
+It successfully quantitatively reproduced the slight increase in the sand clock's weight predicted theoretically.
+
 
 \end{abstract}
 %=========================================================================
@@ -70,30 +81,34 @@ Hourglass, Mechanics, Discrete Element Method, Variable mass system
 砂がすべて落ちきった後の砂時計全体の重さはもちろん変わらない。
 では、砂が落ちている最中の砂時計の重さはどうであろうか。
 この問題は古くから知られていて、
-砂時計はわずかに重くなるが、それは人の出では感じられないほどわずかな差であることがわかっている。
+砂時計は少しだけ重くなることがわかっている。
+だが、それは手で感じるに弱すぎるほどわずかな差である。
 
 
-Scientific American誌の有名なMathematical Gamesの連載記事でGardnerが砂時計を使ったおもちゃを紹介したときがこの問題に注目を集めた最初であろう\cite{Gardner1966-eu}。
-その後すぐに、落下した砂が砂時計の底面に与える力積（つまり砂時計を重くする効果）が、
-落下中の砂の分だけ砂時計の重さが軽くなる効果とちょうどキャンセルするという指摘がされた\cite{Reid1967-jq}。
-そこでは、この問題は力学教育のよい題材になるであろうとも指摘された。
+Scientific American誌の記事においてGardnerが砂時計を使ったおもちゃを紹介したことがきっかけとなり、
+砂時計の重さの問題が注目を集めたようである。\cite{Gardner1966-eu}
+その後、落下した砂が砂時計の底面に与える力積つまり砂時計を重くする効果が、
+落下中の砂の分だけ砂時計の重さが軽くなる効果とちょうどキャンセルするという指摘が（この問題は力学教育のよい題材になるであろうというコメントとともに）された\cite{Reid1967-jq}。
 その議論は以下のように簡単なものである：
 砂時計のオリフィスから質量$m$の砂が落下し、$\tau_f$だけの時間をかけて下面に到達するあいだ、重力$mg$の分だけ砂時計は軽くなる。
 1秒間に$\mu$個の砂が落ちる砂時計であれば$\mu \tau_f$個の砂が浮いているので、砂時計は$\mu \tau_f mg$だけ軽くなる。
-一方、一つの砂が底面到達したときにもつ運動量は$mg\tau$なので、落下する砂が1秒あたりに底面に与える力積、つまり力は$m\mu g\tau_f$であり、浮いている砂の重力とちょうどキャンセルする\cite{Kassandrov2023-tn}。
-この議論は直感的で、説得力があるので、その後、多くの人が、砂時計の重さは変わらないと信じてきた。
+一方、一つの砂が底面に到達したときにもつ運動量は$mg\tau_f$なので、落下する砂が1秒あたりに底面に与える力積、つまり力は$m\mu g\tau_f$であり、浮いている砂の重力とちょうどキャンセルする。
 
 
-だが、砂の重心に注目すると、
-砂が落ちている間、砂時計の重さが変化しないはずはないと思えてくる。
+落下する砂粒の力積と重力がキャンセルするという説明は直感的で説得力があるが、少しだけ正確さに欠ける。
+
+
+砂の重心に注目すると、砂が落ちている間、砂時計の重さが変化しないはずはない。
 最初の砂が落ち始める前、砂時計の上部で静止状態にあった重心は、
 砂が落ち始めると下部に移動しはじめ、全ての砂が落ちきった後には砂時計の下部で静止状態になる。
-砂時計の砂を入れたガラス部分が（ひいては砂時計を乗せた手が）下に「落ちて」きた重心を受け止めて、静止させたのだから、少なくともその間は上向きの力、つまり重みが増えたはずである。
-結局、砂時計の重さの変化は、砂時計が砂を支える抗力の変化であり、重心移動の加速度に比例するはずである。
-ただし、重心移動の距離はわずか（最大でも砂時計の高さ程度）であり、
+砂時計の砂を入れたガラス部分（あるいは砂時計を乗せた手）が下に「落ちて」きた重心を受け止めて、静止させたのだから少なくともその間は上向きの力、つまり重みが増えたはずである。
+
+
+とはいえ、重心移動の距離はわずか（砂時計の高さ程度）であり、
 しかもかなり時間をかけたゆっくりとした移動（砂時計が3分計であれば3分間）なので、
 その加速度は必然的に小さく、したがって砂時計全体の重さに与える影響は小さいことは予想できる。
-Shen等はガラスの粉末を使った「砂」時計の重量を測定してガラス粉末の総質量の$10^{-3}$倍程度というわずかな割合だけ実際に重くなることを示した\cite{ShenUnknown-pk}。
+この弱い効果を始めて実験的に検証したのはShen等である\cite{ShenUnknown-pk}。
+彼らはガラスの粉末を使った「砂」時計の重量を測定してガラス粉末の総質量の$10^{-3}$倍程度というわずかな割合だけ実際に重くなることを示した。
 % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - 
 %  メモ：彼らの論文には総質量は明記されていない。
 %        時間が10s から15sで、砂のfluxが3.7 g/s であるという記述があるので、
@@ -112,22 +127,21 @@ Shen等はガラスの粉末を使った「砂」時計の重量を測定して�
 この二つ短い遷移時間の間、砂時計の重量がわずかに重くなる時期が続く。
 
 
-砂時計の重さの問題は、単純そうでありながら、実際にはそうでなく、
+砂時計の重さの問題は、理論的には単純そうでありながら、実際にはそうではないという点で興味深く、
 また、質量が時間変化する系の典型例として教育的にも重要であると指摘されている\cite{Kassandrov2023-tn}。
 
 
-砂時計のガラスがくびれているのは、単位時間あたりに落下する砂の数の一定で小さい値にするためである。
-落下する砂粒の列が一本だけであるため、落下前の砂粒も、落下後の砂粒も複雑な3次元運動をするが、
-砂時計の重さの変化に寄与するのは砂の鉛直方向の運動だけである。
-この複雑さを回避するするために、Tuinstra等は単一のオリフィスではなく多数（230個）の穴を持つ「ふるい」で区切られた円筒状の砂時計を作成し、
-（本物の）砂$1.6$~\si{kg}を使った実験を行い、理論から予想される重さの増加を得た\cite{Tuinstra2010-wk}。
+期待される重量の変化がわずかなので、実験で検証するにはもさまざまな工夫が必要となる点でこの問題は興味深い。
+その中で特に我々が注目したのは、Tuinstra等の実験である\cite{Tuinstra2010-wk}。
+彼らは通常の砂時計がもつようなくびれをもたない円筒状の砂時計で実験を行った。
+通常の砂時計では1つのオリフィスがある中心の高さに、多数（230個）の穴をもつ「ふるい」のような板を設置することで、
+多数の砂を同時に落下させて理論的に期待される重みを増幅させることで予想される通りの重さの増加を測定した。
+%（本物の）砂を使った実験を行い、理論から予想される通りの重さの増加を測定した
 % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - 
+% 論文によれば、M0=1.6$~\si{kg} である
 % 理論的には$0.116$~\si{g}の重さの増加が期待され、測定結果は$0.121$~\si{g}であった。
 % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - % - 
 
-
-本研究においても、砂粒が鉛直方向にのみ運動するという理想化を行う。
-これにより理論解析も容易になる。
 
 
 コンピュータシミュレーションでこの効果、つまり砂が落下している最中の砂時計がわずかに重くなる効果を実証した研究はまだないようである。
@@ -139,11 +153,11 @@ Shen等はガラスの粉末を使った「砂」時計の重量を測定して�
 
 
 %=============================================
-\section{理論}
+\section{理論}\label{250919151350}
 %=============================================
 
 %------------------------------------------
-\subsection{問題設定} \label{250919151350}
+\subsection{問題設定} 
 %------------------------------------------
 
 $T_0$秒間を測る砂時計を考える。
@@ -162,19 +176,19 @@ $T_0$秒間を測る砂時計を考える。
 \end{equation}
 %==========
 とする。
-$m$と$\mu$は
-
-
-鉛直上向きに$y$軸をとり、
-砂が落ちる位置すなわちオリフィスの位置を$y=0$とする。
-最初の砂粒が落下する距離、つまり砂時計の底面の位置を$y=-H_0$とする。
-
+$m$と$\mu$は定数である。
 
 % . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
       \marginnote{図\ref{250919103231}}
 % . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+図\ref{250919103231}の左に示すように、鉛直上向きに$y$軸をとり、
+砂が落ちる位置すなわちオリフィスの位置を$y=0$とする。
+最初の砂粒が落下する距離、つまり砂時計の底面の位置を$y=-H_0$とする。
+
+
+
 砂時計の床面に働く抗力を求めることを目標として、運動方程式を立てる。
-図\ref{250919103231}に示すように、
+図\ref{250919103231}の右に示すように、
 オリフィスよりも上にある砂の層を質量$M_1(t)$をもつ物体1、
 下に落下して静止した砂の層を質量$M_2(t)$をもつ物体2、
 落下中の砂粒全体を質量$M_3(t)$をもつ物体3とみなす。
@@ -262,24 +276,24 @@ $m$と$\mu$は
 つまり自由落下時間
 %==========
 \begin{equation} \label{250703153227} 
-   \tau_{f0} = \sqrt{\frac{2H_0}{g}}
+   \tau_0 = \sqrt{\frac{2H_0}{g}}
 \end{equation}
 %==========
 以降である。
-時刻$t>\tau_{f0}$では下の層に砂粒が$\mu$の割合で降り注ぐので、
+時刻$t>\tau_0$では下の層に砂粒が$\mu$の割合で降り注ぐので、
 %==========
 \begin{equation} \label{250919091147} 
-   M_2(t) = m\mu (t-\tau_{f0})
+   M_2(t) = m\mu (t-\tau_0)
 \end{equation}
 %==========
 と書ける。
-実がこれは正確ではないが、その誤差は小さい。詳細はAppendix~\ref{250919092352}参照。
+実はこれは正確ではないが、その誤差は小さい。詳細はAppendix~\ref{250919092352}参照。
 
 
 下の砂層の厚さは
 %==========
 \begin{equation} \label{250919104425} 
-   K_2(t) = \frac{M_2(t)}{\sigma} = \frac{m\mu}{\sigma}(t-\tau_{f0})
+   K_2(t) = \frac{M_2(t)}{\sigma} = \frac{m\mu}{\sigma}(t-\tau_0)
 \end{equation}
 %==========
 その時間微分は
@@ -311,40 +325,44 @@ $m$と$\mu$は
 である。
 
 
-Appendix~\ref{250919092352}にしめすように、式\eqref{250920171606}には誤差がある。
-正しくは
-%==========
-\begin{equation} \label{250920171723}
-   \dot{K}_2  = \frac{m\mu}{\sigma}\left( 1+ \frac{\epsilon}{2\sqrt{1-\beta  (t-\tau_{f0})}}\right)+ \mathcal{O}(\epsilon^2)
-\end{equation}
-%==========
-である。ここで
+
+Appendix~\ref{250919092352}の式~\eqref{250920170423}に示すように、
+式\eqref{250920171606}には$\mathcal{O}(\epsilon)$だけ誤差がある。
+%正しくは
+%%==========
+%\begin{equation} \label{250920171723}
+%   \dot{K}_2  = \frac{m\mu}{\sigma}\left( 1+ \frac{\epsilon}{2\sqrt{1-\beta  (t-\tau_0)}}\right)+ \mathcal{O}(\epsilon^2)
+%\end{equation}
+%%==========
+%である。
+ここで
 %==========
 \begin{equation} \label{250919092251} 
-   \epsilon = \frac{K_0/T_0}{\sqrt{2gH_0}}  \ll 1
+   \epsilon = 2\frac{K_0/T_0}{\sqrt{2gH_0}}  \ll 1
 \end{equation}
 %==========
-は微小量である。（Appendix~\ref{250919092352}参照）。
-運動量の時間変化に与えるこの誤差の影響は小さい。
-%==========
-\begin{equation} \label{250920161509} 
-    \dot{P}_2 = \dot{M}_2\frac{\dot{K_2}}{2} = \frac{\sigma}{2}(\dot{K}_2)^2 
-    =  \frac{\sigma}{2} \frac{m^2\mu^2}{\sigma^2}\left(1+ \frac{\epsilon}{\sqrt{1-\beta t}}\right) + \mathcal{O}(\epsilon^2)
-\end{equation}
-%==========
-%==========
-\begin{equation} \label{250923165505}
-    \dot{P}_2
-    	 =  \frac{m^2\mu^2}{2\sigma}\left(1 + \frac{\epsilon}{\sqrt{1-\beta t}}\right) + \mathcal{O}(\epsilon^2)
-\end{equation}
-%==========
+は砂層の厚さが変化する速度（遅い）と砂粒の自由落下速度（速い）の比（の2倍）なので無視できるほど小さい。
+%したがって式\eqref{250920171723}の右辺の$\epsilon$に比例する項は無視してよい。
+%運動量の時間変化に与えるこの誤差の影響は小さい。
+%%==========
+%\begin{equation} \label{250920161509} 
+%    \dot{P}_2 = \dot{M}_2\frac{\dot{K_2}}{2} = \frac{\sigma}{2}(\dot{K}_2)^2 
+%    =  \frac{\sigma}{2} \frac{m^2\mu^2}{\sigma^2}\left(1+ \frac{\epsilon}{\sqrt{1-\beta t}}\right) + \mathcal{O}(\epsilon^2)
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250923165505}
+%    \dot{P}_2
+%    	 =  \frac{m^2\mu^2}{2\sigma}\left(1 + \frac{\epsilon}{\sqrt{1-\beta t}}\right) + \mathcal{O}(\epsilon^2)
+%\end{equation}
+%%==========
 
 
 %------------------------------------------
 \subsection{物体3（落下中の砂粒）}
 %------------------------------------------
-
-$t\ge \tau_{f0}$のある時刻$t$に落下している最中の砂粒は、
+上に述べた誤差の範囲で、
+$t\ge \tau_0$のある時刻$t$に落下している最中の砂粒は、
 高さ
 %==========
 \begin{equation} \label{250919083726} 
@@ -358,10 +376,10 @@ $t\ge \tau_{f0}$のある時刻$t$に落下している最中の砂粒は、
 位置$y$を速度$v_y(y)$で下方$(v_y<0)$に通過する砂粒の数は常に$\mu$個なので、砂粒の数密度を$n(y)$とすると、
 %==========
 \begin{equation} \label{250917101402} 
-   n(y) v_y(t) = -\mu = \text{const.}
+   n(y) v_y(y) = -\mu = \text{const.}
 \end{equation}
 %==========
-である。したがって物体3の運動量の密度は
+である。したがって物体3の運動量密度
 %==========
 \begin{equation} \label{250917102631} 
    p_3 = mn(y)v_y(y)= -m \mu = \text{const.}
@@ -384,18 +402,18 @@ $t\ge \tau_{f0}$のある時刻$t$に落下している最中の砂粒は、
 である。
 
 
-$\mathcal{O}(\epsilon)$の補正の影響は小さい。
-%==========
-\begin{equation} \label{250920161728} 
-   \dot{P}_3 = m\mu \dot{K}_2 = \frac{m^2\mu^2}{\sigma}\left( 1 + \frac{\epsilon}{2\sqrt{1-\beta t}}\right) + \mathcal{O}(\epsilon^2)
-\end{equation}
-%==========
-%したがって
+%$\mathcal{O}(\epsilon)$の補正の影響は小さい。
 %%==========
-%\begin{equation} \label{250920162242} 
-%   \dot{P}_2 + \dot{P}_3 =  \frac{m^2\mu^2}{\sigma} \left( \frac{3}{2} + \frac{\epsilon}{\sqrt{1-\beta t}}\right) + \mathcal{O}(\epsilon^2)
+%\begin{equation} \label{250920161728} 
+%   \dot{P}_3 = m\mu \dot{K}_2 = \frac{m^2\mu^2}{\sigma}\left( 1 + \frac{\epsilon}{2\sqrt{1-\beta t}}\right) + \mathcal{O}(\epsilon^2)
 %\end{equation}
 %%==========
+%%したがって
+%%%==========
+%%\begin{equation} \label{250920162242} 
+%%   \dot{P}_2 + \dot{P}_3 =  \frac{m^2\mu^2}{\sigma} \left( \frac{3}{2} + \frac{\epsilon}{\sqrt{1-\beta t}}\right) + \mathcal{O}(\epsilon^2)
+%%\end{equation}
+%%%==========
 
 
 %------------------------------------------
@@ -488,13 +506,13 @@ $F_2 (>0)$を砂時計の構造体が（底面で）物体2を支える抗力と
 %------------------------------------------
 
 我々は粒子法（個別要素法）に基づくシミュレーションによって砂時計の重さの変化を再現する。
-第\ref{250919151350}節で述べた理論は、砂粒の水平方向の運動は全く寄与しておらず、この現象は本質的に1次元的運動であることから、このシミュレーションにおいても1次元モデルを採用する。
-落下する砂は複数の本数があるが、それぞれの砂柱は常に鉛直方向に1次元的な運動をする。
-下の砂層に到達した砂粒は水平方向に動くことはなく、落ちた順番に上に積み上がっていく。
-砂粒同士の接触相互作用は上下二つの隣の砂粒とだけ考えればよい。
+第\ref{250919151350}章で述べた理論は、砂粒の水平方向の運動は全く寄与しておらず、この現象は本質的に1次元的な運動の帰結であることに注意する。
+そこでこのシミュレーションでは各粒子が鉛直方向にのみ運動する1次元モデルを採用する。
+つまり、落下して、下の砂層に到達した砂粒は水平方向に動くことはなく、落ちた順番に上に積み上がっていく。
+この場合、砂粒同士の接触相互作用は上下二つの隣の砂粒とだけ考えればよい。
 
 
-砂粒同士の相互作用および砂粒と床面との相互作用はソフトスフェアモデルで表現する。
+砂粒同士の相互作用および砂粒と床面との相互作用はソフトスフィアモデルで表現する。
 一つの砂粒を半径$a$、質量$m$の球とする。
 $i$番目の砂粒と、下方にいる隣の砂粒$i-1$との距離が$2a$よりも大きい場合は互いに力をおよぼすことはない。
 各砂粒は自然長$a$、ばね定数$k$のバネがあるものとする。
@@ -503,7 +521,7 @@ $i$番目の砂粒と、下方にいる隣の砂粒$i-1$との距離が$2a$よ�
 
 
 砂時計の中の砂粒が砂時計の床面、あるいは他の砂粒に高速で衝突したときもほとんど跳ね返ることなく静止する。
-完全非弾性衝突に近いこのような現象をソフトスフェアモデルで再現するためには適切な$k$と$b$を設定するだけでなく、
+完全非弾性衝突に近いこのような現象をソフトスフィアモデルで再現するためには適切な$k$と$b$を設定するだけでなく、
 十分に細かい時間刻み幅$\Delta t$をとる必要がある。
 本シミュレーションでは時間積分法として陽的4次ルンゲ・クッタ法を採用した。
 
@@ -512,7 +530,7 @@ $i$番目の砂粒と、下方にいる隣の砂粒$i-1$との距離が$2a$よ�
 最初の砂粒は高さ$H_0$から自由落下し、速度
 %==========
 \begin{equation} \label{250919160111} 
-   v_{f0} = \sqrt{2gH_0}
+   v_0 = \sqrt{2gH_0}
 \end{equation}
 %==========
 で砂時計の床面に衝突し、静止する。
@@ -521,35 +539,35 @@ $i$番目の砂粒と、下方にいる隣の砂粒$i-1$との距離が$2a$よ�
 砂粒の半径と自由落下速度できまる時間スケールは
 %==========
 \begin{equation} \label{250919160801} 
-   \tau_{f0} = \frac{a}{v_{f0}}
+   t_0 = \frac{a}{v_0}
 \end{equation}
 %==========
 である。
 時間刻み幅は
 %==========
 \begin{equation} \label{250919160045} 
-   \Delta t = \alpha \tau_{f0}
+   \Delta t = \alpha t_0
 \end{equation}
 %==========
 として決める。
 ここで係数$\alpha$は十分小さい値で、本シミュレーションでは$\alpha=10^{-3}$とした。
-バネ定数$k$は単振動の周期が$\tau_{f0}$と等しくなるよう
+バネ定数$k$は単振動の周期が$t_0$と等しくなるよう
 %==========
 \begin{equation} \label{250919161147} 
-   k = m\left(\frac{2\pi}{\tau_{f0}}\right)^2
+   k = m\left(\frac{2\pi}{t_0}\right)^2
 \end{equation}
 %==========
 と設定する。
-ダンパーの減衰係数は定数$\beta$を
+ダンパーの減衰係数は定数$\gamma$を
 %==========
 \begin{equation} \label{250919162003} 
-   b = \beta b_0
+   b = \gamma b_0
 \end{equation}
 %==========
 として与える。
 ここで$b_0=2\sqrt{mk}$は臨界減衰係数で、
-$\beta$は定数である。
-本シミュレーションでは$\beta=10$とした。
+$\gamma$は定数である。
+本シミュレーションでは$\gamma=10$とした。
 
 
 % . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
@@ -559,25 +577,81 @@ $\beta$は定数である。
 この図の左のグラフが示すように、粒子が放物線を描いて落下し、$y=0$に想定した床面に衝突して跳ね返ることなく止まる。
 右のグラフは衝突の瞬間近くの拡大図である。
 粒子の中心位置が$y=a$（右のグラフの灰色水平線）に達したときに床面と接触する。
-この計算の時間刻み幅は$\Delta t = 2.2580\times 10^{-6}$~\si{(s)}である。
+この計算の時間刻み幅は$\Delta t = 2.258\times 10^{-6}$~\si{(s)}である。
 
 
 
 %------------------------------------------
 \subsection{砂時計のモデル}
 %------------------------------------------
+
+% . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+      \marginnote{図\ref{250924103856}}
+% . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+砂時計の重さの増分$\Delta F$が砂層の厚さ$K_0$に比例し、計時時間$T_0$の2乗に反比例することを式\eqref{250703173052}は示す。
+この微弱な増分をシミュレーションで測定できるようにするためにはなるべく厚い砂層に含まれる砂粒が、
+できるだけ短時間に落ちきることが望ましい。
+また、粒子数が有限個であるために必然的に生じる時間的な揺らぎを小さくするためには、シミュレーションで追跡する粒子の数$N$は大きい方が望ましい。
+
+
+だが、多数の砂粒を鉛直方向に1次元的に積み重ねる純粋に1次元的なモデルには問題がある。
+図\ref{250924103856}左に示すように、鉛直方向に積み重なった砂粒が一定の時間間隔で下から順番に一粒ずつ落下する状況を考えよう。
+次の砂粒が床面に衝突して静止するまでには少なくとも粒子の直径$2a$の距離だけ自由落下する時間$\tau_a=2\sqrt{a/g}$が必要であるが、
+この時間は砂粒が落下する時間間隔$T_0/N$よりも十分小さくなければならない。
+つまり $2\sqrt{a/g} < T_0/N$であるが、これは
+%つまり
+%%==========
+%\begin{equation} \label{250924102819} 
+%   \tau_a =2\sqrt{\frac{a}{g}} < \frac{T_0}{N}
+%\end{equation}
+%%==========
+%であるが、これは
+%%==========
+%\begin{equation} \label{250924103332} 
+%   4\frac{a}{g} < \frac{T_0^2}{N^2}
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250924103406} 
+%   2 \frac{K_0}{N}  < \frac{gT_0^2}{N^2}
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250924103451} 
+%  2\frac{K_0}{T_0^2}  < \frac{g}{N}
+%\end{equation}
+%%==========
+%==========
+\begin{equation} \label{250924134548}
+  N < \frac{gT_0^2}{2K_0}
+\end{equation}
+%==========
+を意味する。
+したがって粒子の数を大きくすることができない。
+
+
+
+砂の層の厚さ$K_0$を大きく保ちつつ、十分な砂の総数$N$をもつシミュレーションを実現するために、
+この研究では図\ref{250924103856}右に示すように複数（$N_P$本）の砂の柱（sand pile）を設定した。
+1本の砂柱は1次元的に（鉛直方向のみに）運動する砂粒（$N_S$個）から構成され、
+一定の時間間隔で各砂柱から一粒ずつ砂粒が落下する。
+この工夫により、同じ砂層の高さ$K_0$と同じ計時時間$T_0$であっても、短い時間間隔に多数の粒子を落下させることができる（図\ref{250924103856}右）。
+
+
+
 砂時計は二つの床面をもつ「2階建て」構造をもつ。
 床面は$y=0$と$y=-H_0$にあり、ここでは前者を$U_F$ (Upper floor) 、後者を$L_F$ (Lower floor)と呼ぶ。
-$t=0$に最初の砂粒が落ち始める時刻に、上の床は全部で$N_\text{p}$本の砂柱（sand pile）を支えている。
-各砂柱には固有の整数$p$ ($0\le p < N_\text{p}$) を割り当てる。
-一本の砂柱は$N_\text{s}$個の砂粒から構成される。
-砂粒には固有の番号$i$ ($0\le i < N_\text{s}$)をつける。
+$t=0$に最初の砂粒が落ち始める時刻に、上の床は全部で$N_\text{p}$本の砂柱支えている。
+各砂柱には固有の整数$p$ ($0\le p \le N_\text{p}-1$) を割り当てる。
+一本の砂柱は$N_\text{s}$個の砂粒から構成され、
+砂粒には固有の番号$i$ ($0\le i \le N_\text{s}-1$)をつける。
 $0$番目の砂粒が一番下で、$N_\text{s}-1$番目の砂粒が一番上である。
 砂粒が落下し、衝突しても、各砂粒の上下の位置関係が変わることはない。
 
 
 シミュレーション開始時に、すべての砂柱を$U_F$よりも上方に配置し、
 $t=0$から全部で$N_0 = N_\text{p} N_\text{s}$個の砂粒の運動方程式を解く。
+
 
 ある一つの砂柱の中の$i$番目の砂粒の$y$座標を$y_i$と書くと、その運動方程式は、
 %==========
@@ -592,8 +666,8 @@ $t=0$から全部で$N_0 = N_\text{p} N_\text{s}$個の砂粒の運動方程式�
 下の砂粒と接触した場合に受ける上向きの力である。
 
 
-上の床 $U_F$と接触している粒子は常に0個または1個である。
-粒子$i$が$U_F$と接触していなければ$F_{i,{U_F}}=0$である。
+ある一本の砂柱の中で、上の床 $U_F$と接触している粒子は常に0個または1個である。
+粒子$i$が$U_F$と接触していなければ式式\eqref{250919171805}で$F_{i,{U_F}}=0$とする。
 下の床$L_F$についても同様である。
 
 
@@ -614,8 +688,8 @@ $t=0$から全部で$N_0 = N_\text{p} N_\text{s}$個の砂粒の運動方程式�
 % . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
       \marginnote{図\ref{250921063433}}
 % . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
-オリフィスを通過して落下する砂粒の数が時間的に一定というであることが砂時計の基本性質（Beverloo則）である。
-このを本研究では次の方法で実装した。
+オリフィスを通過して落下する砂粒の数が時間的に一定というであることが砂時計も含めた粉体の基本性質である。
+本研究では次の方法で一定の粒子数フラックスを実現した。
 一本の砂柱の砂粒には0番から順番に上に向かって番号がつけてあるので、
 当初は粒子0は上方で粒子1と、下方で床面と相互作用する（図\ref{250921063433}左）。
 床面が粒子0を支えることで、全ての粒子が床面の上に直線上に積み重なった状態で静止する。
@@ -657,13 +731,11 @@ $T_0=10.0$~\si{(s)}とした。
 $t=-2~\si{(s)}$にシミュレーションを開始し、
 $t=0$に砂の落下を開始する。
 時間刻み幅は $\Delta t = 1.996\times 10^{-6}$~\si{(s)} である。
-
-
 抗力の時間変動が大きいので、
 左のグラフでは0.2~\si{(s)}毎の平均値をとっている。% 正確には 1万ステップ毎の平均値
 
 
-砂の質量$M_0$による重力$M_0$が抗力$F$によって支えらるので、
+砂の質量$M_0$による重力$M_0g$が抗力$F$によって支えられるので、
 左のグラフの$t<0$の測定値は$W=F/g=1$の線に乗っている。
 $t=0$に砂の落下が始まると砂時計の重さは変動し、最初の砂粒が$y=-H_0$の下の床面に$L_F$に到達するまでは総じて軽くなる。
 その後、$t\sim 2$から$t=T_0=10$まではやはり変動が大きいものの、平均をとれば$W=1$よりも大きくなる。
@@ -673,7 +745,7 @@ $t=10$以降の短い時間、落下する砂粒による力積の効果によ�
 シミュレーションで得られた砂時計の重さの変化$\Delta W$をみるために、
 右のグラフでは0.49~\si{(s)}毎の平均値をとり、縦軸を拡大してプロットした。 % 正確には24万ステップ毎の平均値
 式\eqref{250703173052}による理論値は
-$\Delta W=2M_0 L_0/T_0^2 = 2.039\times 10^{-3}$~\si{(kg)}である。
+$\Delta W=2M_0 K_0/gT_0^2 = 2.039\times 10^{-3}$~\si{(kg)}である。
 シミュレーションで得られた重さの増加は理論とよく一致していることがわかる。
 
 
@@ -682,24 +754,23 @@ $\Delta W=2M_0 L_0/T_0^2 = 2.039\times 10^{-3}$~\si{(kg)}である。
 %=============================================
 
 砂が落ちている間、砂時計はわずかに重くなる。 
-このよく知られている結果を砂が鉛直方向のみに運動するという1次元モデルに基づく運動方程式を用いて簡便に導出すると同時に、
-ソフトスフィアモデルに基づくシミュレーションで定量的に再現した。
+このよく知られている結果を可変質量系の力学の問題として定式化し、運動方程式を用いて導出して重みが増加する起源を明らかにした。
 
 
 砂が落ちるにつれて上の砂層の質量$M_1$と厚さ$K_1$は時間の線形で減少し、
 下の砂層の質量$M_2$と厚さ$K_2$は線形に上昇する。
 $+y$を鉛直上方にとると
-$\dot{M}_1<0$, $\dot{K}_1<0$であるが、上の砂層の運動量$P_1$の時間微分$\dot{P}_1=\dot{M}_1 \dot{K}_1 = M_0K_0/2T_0^2>0$は上向きである。
+$\dot{M}_1<0$, $\dot{K}_1<0$であるが、上の砂層の運動量$P_1$の時間微分$\dot{P}_1=\dot{M}_1 \dot{K}_1 = M_0K_0/2T_0^2>0$は正、つまり上向きである。
 同様に下の砂層の運動量の時間微分$\dot{P}_2=\dot{M}_2 \dot{K}_2 = M_0K_0/2T_0^2 >0$も上向きである。
 
 
 この二つに加えて見逃し易いが決して無視できない大きさを持つ効果は、
-下の層が厚くなるにつれて、砂の落下距離が短くなるためことから、落下中の砂がもつ運動量$P_3<0$の時間微分の効果$\dot{P}_3=M_0K_0/T_0^2>0$である。
-この3つの力を合わせると式\eqref{250703173105}で示した力の増分、
-つまり砂時計の重さの起源はこの3つの効果の和による力$\Delta F=2M_0K_0/T_0^2$である。
+下の層が厚くなるにつれて、砂の落下距離が短くなることから、落下中の砂がもつ運動量$P_3<0$の時間微分の効果$\dot{P}_3=M_0K_0/T_0^2>0$であり、これも上向きである。
+砂時計の重さの増分が増える理由は、これら3つの合力で、その値は$\Delta F=2M_0K_0/T_0^2$である。
 手のひらに乗るほどの砂時計を想定し、砂が落ちる前の砂の層の厚さ$K_0$を$\mathcal{O}(10^{-1})$~\si{(m)}、
-砂時計の計時時間$T_0=\mathcal{O(10^{2})}$とすると、
-砂の質量$M_0$にかかる重力$M_0 g$と比較した$\Delta F$の相対的な大きさは$2K_0/gT_0^2=\mathcal{O}(10^{-5})$と極めて小さいので、手に持った人が感じられる差ではない。
+砂時計の計時時間$T_0=\mathcal{O}(10^{2})~\si{(s)}$とすると、
+砂の質量$M_0$にかかる重力$M_0 g$と比較した$\Delta F$の相対的な大きさは$2K_0/gT_0^2=\mathcal{O}(10^{-5})$と極めて小さいので、
+人が感じることはできないであろう。
 
 
 このようなわずかな変化をコンピュータシミュレーションで定量的に再現するために、
@@ -708,26 +779,38 @@ $\dot{M}_1<0$, $\dot{K}_1<0$であるが、上の砂層の運動量$P_1$の時�
 砂時計の粒子群の運動を精度良く追跡するためにはソフトスフィアモデルが相応しい。
 
 
-このシミュレーションの難しさは、シミュレーションで扱うべきマクロな時間スケールとミクロな時間スケールが大きく異なることにある。
-ミクロな時間スケールは、粒子の衝突時間スケールである。
-自由落下速度$v_f$で落下してきた半径$a$の砂粒が、下の砂粒に衝突したことを検知するためには、
-シミュレーションの時間刻み幅$\Delta t$が$\Delta t\ll a/v_f$でなければならない。
-第\ref{250923145905}章で紹介したシミュレーションの場合、$\Delta t = 1.996\times 10^{-6}$~\si{(s)} とした。
-一方、マクロな時間スケールは砂時計の計時時間$T_0$である。
-計時時間$T_0$を$\mathcal{O}(10^{1})$と比較的小さく設定したとしても、
-シミュレーションの時間積分ステップ数は少なくとも$T_0 / \Delta t=5\times 10^6$は必要である。
-
-
-多数の粒子群の3次元的な運動方程式を500万ステップ以上にわたって数値積分するのは難しいが、
-このシミュレーションでは、鉛直方向の運動だけを考慮する1次元的なモデルを採用することでこの困難を克服した。
-1次元の粒子モデルでは、一つの粒子は最大、上下二つの隣の粒子とだけ接触し、しかも接触する相手は変わらないので、
-取り扱いが単純で高速である。
-
-
-本研究で開発したシミュレーションプログラムはProcessing言語で書いた。
+本研究で開発したシミュレーションプログラムはProcessing言語で書き、ノートPCで実行した。
 この言語では、浮動小数点数変数の種類は単精度実数しかデフォルトで用意されていないが、
 本研究では倍精度浮動小数点数で計算した。
 %シミュレーションプログラムはGitHubで公開する。
+
+
+
+理論的な解析が示すように、砂時計の重さの変化を引き起こすのは、
+砂粒が鉛直下方に移動する自由落下運動と、上の砂層と下の砂層の厚みが時間的に（線形で）変化することに起因する。
+したがって砂粒の水平方向の運動は本質的ではないので、鉛直方向のみを扱う1次元的な粒子シミュレーションでこの現象を定量的に再現できるはずと考えた。
+1次元の粒子モデルでは、一つの粒子は最大でも上下二つの隣の粒子とだけ接触し、しかも接触する相手は変わらないので、取り扱いが単純で計算が高速になる。
+
+
+
+砂の層の厚みが変化する速度（$\dot{K}_1$と$\dot{K}_2$）をシミュレーションでも正確に評価しなければいけないことも理論からわかる。
+1次元粒子シミュレーションには上述の利点があるが、
+砂の柱が1本だけあるようなシミュレーションモデルでは与えられた時間の間に十分な数の砂を落下させることができない。
+そこで本研究では複数の砂柱からそれぞれ独立に砂粒が落下するモデルを採用し、
+十分な数の砂粒を落下させることができ、理論的に予測される重さの増分を定量的に再現することに成功した。
+これは通常の砂時計のようなくびれのある容器ではなく、円筒形の容器の真ん中に多数の穴のある板を差し込んだTuinstra等の実験において同じ工夫である\cite{Tuinstra2010-wk}。
+
+
+このシミュレーションの特徴は、扱うべきマクロな時間スケールとミクロな時間スケールが大きく異なることである。
+ミクロな時間スケールは、粒子の衝突で決まる。
+自由落下速度$v_0$で落下してきた半径$a$の砂粒が、下の砂粒に衝突したことを検知するためには、
+シミュレーションの時間刻み幅$\Delta t$が$\Delta t\ll a/v_0$でなければならない。
+第\ref{250923145905}節で紹介したシミュレーションでは、$\Delta t = 1.996\times 10^{-6}$~\si{(s)} とした。
+一方、マクロな時間スケールは砂時計の計時時間$T_0$である。
+計時時間$T_0$を$10$~\si{(s)} 程度とした場合、
+シミュレーションの時間積分ステップ数は少なくとも$T_0 / \Delta t=5\times 10^6$は必要である。
+とはいえこの程度の数値積分はノートPCでも十分に実行でき、Processingがもつ可視化機能によりリアルタイムで砂の落下を観察することもできる。
+
 
 
 \bibliographystyle{amsplain} 
@@ -739,17 +822,100 @@ $\dot{M}_1<0$, $\dot{K}_1<0$であるが、上の砂層の運動量$P_1$の時�
 \section{下の砂層の厚さの時間変化}\label{250919092352}
 %=============================================
 
-落下中の砂の総数は
+物体3は自由落下する砂で構成される。
+その砂粒の総数は、$y=0$から下の砂層$K_2(t)$の最上部$y=-H_0+K_2(t)$まで自由落下する時間$\tau_f(t)$を使い、
 %==========
 \begin{equation} \label{250917175724} 
-   N_3(t) = \mu \tau_f(t) = \mu \sqrt{\frac{2K_3(t)}{g}} = \mu \sqrt{\frac{2(H_0-K_2(t))}{g}} = \mu \sqrt{\frac{2}{g}}\sqrt{H_0-K_2(t)}
+   N_3(t) = \mu \tau_f(t) 
+    = \mu \sqrt{\frac{2(H_0-K_2(t))}{g}} 
+    % = \mu \sqrt{\frac{2}{g}}\sqrt{H_0-K_2(t)}
 \end{equation}
 %==========
-である。したがってその質量は
+と書ける。
+したがって物体3の質量は$M_3(t) = mN_3(t) $である。
+%%==========
+%\begin{equation} \label{250917175839} 
+%   M_3(t) = mN_3(t) %= m \mu \sqrt{\frac{2(H_0-K_2(t))}{g}} 
+%   		 = m\mu\sqrt{\frac{2}{g}}\sqrt{H_0-K_2(t)}
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250924142352} 
+%   K_3(t) = \frac{m\mu}{\sigma}\sqrt{\frac{2}{g}}\sqrt{H_0-K_2(t)}
+% \end{equation}
+%%==========
+
+
+
+
+
+砂の総質量
 %==========
-\begin{equation} \label{250917175839} 
-   M_3(t) = mN_3(t) %= m \mu \sqrt{\frac{2(H_0-K_2(t))}{g}} 
-   		 = m\mu\sqrt{\frac{2}{g}}\sqrt{H_0-K_2(t)}
+\begin{equation} \label{250917175922} 
+   M_0 = M_1(t) + M_2(t) + M_3(t)
+\end{equation}
+%==========
+は定数なので、この式の時間微分をとり、式\eqref{250919084914}を使うと、
+%これは
+%%==========
+%\begin{equation} \label{250919085544} 
+%   \sigma K_0 =  \sigma K_1(t) + \sigma K_2(t) + m\mu\sqrt{\frac{2}{g}}\sqrt{H_0-K_2(t)}
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250920140526}
+%   K_0 =  K_1(t) + K_2(t) + \frac{m\mu}{\sigma}\sqrt{\frac{2}{g}}\sqrt{H_0-K_2(t)}
+%\end{equation}
+%%==========
+%この式の時間微分をとる。
+%%==========
+%\begin{equation} \label{250920140735} 
+%   0 = \dot{K}_1(t) +   \frac{\mathrm{d}}{dt}\left\{K_2(t)  + \frac{m\mu}{\sigma}\sqrt{\frac{2}{g}} \sqrt{H_0-K_2(t)} \right\}
+%\end{equation}
+%%==========
+%式\eqref{250919084914}より
+%%==========
+%\begin{equation} \label{250919085137} 
+%    0 =  -\frac{m\mu}{\sigma} +   \dot{K}_2(t)  + \frac{m\mu}{\sigma}\sqrt{\frac{2}{g}} \frac{\mathrm{d} }{\mathrm{d} t}\sqrt{H_0-K_2(t)}
+%\end{equation}
+%%==========
+%両辺を$H_0$で割ると
+%==========
+\begin{equation} \label{250920140957} 
+    0 =  -\frac{m\mu}{\sigma H_0} +   \frac{\dot{K}_2(t)}{H_0}  + \frac{m\mu}{\sigma}\sqrt{\frac{2}{gH_0}} \frac{\mathrm{d} }{\mathrm{d} t}\sqrt{1-\frac{K_2(t)}{H_0}}
+\end{equation}
+%==========
+ここで、$K_2(t)$を$H_0$で規格化した
+%==========
+\begin{equation} \label{250920141535} 
+   k_2(t) = \frac{K_2(t)}{H_0}
+\end{equation}
+%==========
+と、時間の逆数の次元をもつ定数
+%==========
+\begin{equation} \label{250920141440} 
+   \beta = \frac{m\mu}{\sigma H_0}
+\end{equation}
+%==========
+および無次元定数
+%==========
+\begin{equation} \label{250920141156} 
+   \epsilon = \frac{m\mu}{\sigma}\sqrt{\frac{2}{gH_0}} = 2\frac{K_0/T_0}{v_0}
+\end{equation}
+%==========
+を定義する。
+式\eqref{250920141156}の右辺最終項のは、砂層が変化する速度と砂粒の（最大の）自由落下速度の比である。
+したがって$\epsilon$は微少量である。
+%%==========
+%\begin{equation} \label{250917183422} 
+%    \epsilon \ll 1
+%\end{equation}
+%%==========
+あとで$\mathcal{O}(\epsilon^2)$を無視する近似を行うが当面は近似はとらない。
+$k_2(t)$に対する微分方程式は
+%==========
+\begin{equation} \label{250920141635} 
+    \beta = \frac{\mathrm{d} }{\mathrm{d} t} \left( k_2(t)  + \epsilon \sqrt{1-k_2(t)}\right)
 \end{equation}
 %==========
 である。
@@ -757,78 +923,8 @@ $\dot{M}_1<0$, $\dot{K}_1<0$であるが、上の砂層の運動量$P_1$の時�
 
 
 
-砂の総質量は
-%==========
-\begin{equation} \label{250917175922} 
-   M_0 = M_1(t) + M_2(t) + M_3(t)
-\end{equation}
-%==========
-は定数である。
-%これは
-%%==========
-%\begin{equation} \label{250919085544} 
-%   \sigma K_0 =  \sigma K_1(t) + \sigma K_2(t) + m\mu\sqrt{\frac{2}{g}}\sqrt{H_0-K_2(t)}
-%\end{equation}
-%%==========
-%==========
-\begin{equation} \label{250920140526}
-   K_0 =  K_1(t) + K_2(t) + \frac{m\mu}{\sigma}\sqrt{\frac{2}{g}}\sqrt{H_0-K_2(t)}
-\end{equation}
-%==========
-この式の時間微分をとる。
-%==========
-\begin{equation} \label{250920140735} 
-   0 = \dot{K}_1(t) +   \dot{K}_2(t)  + \frac{m\mu}{\sigma}\sqrt{\frac{2}{g}} \frac{\mathrm{d} }{\mathrm{d} t}\sqrt{H_0-K_2(t)} 
-\end{equation}
-%==========
-式\eqref{250919084914}より
-%==========
-\begin{equation} \label{250919085137} 
-    0 =  -\frac{m\mu}{\sigma} +   \dot{K}_2(t)  + \frac{m\mu}{\sigma}\sqrt{\frac{2}{g}} \frac{\mathrm{d} }{\mathrm{d} t}\sqrt{H_0-K_2(t)}
-\end{equation}
-%==========
-両辺を$H_0$で割ると
-%==========
-\begin{equation} \label{250920140957} 
-    0 =  -\frac{m\mu}{\sigma H_0} +   \frac{\dot{K}_2(t)}{H_0}  + \frac{m\mu}{\sigma}\sqrt{\frac{2}{gH_0}} \frac{\mathrm{d} }{\mathrm{d} t}\sqrt{1-\frac{K_2(t)}{H_0}}
-\end{equation}
-%==========
-ここで$K_2(t)$を$H_0$で規格化し
-%==========
-\begin{equation} \label{250920141535} 
-   k_2(t) = \frac{K_2(t)}{H_0}
-\end{equation}
-%==========
-を導入する。
-さらに時間の逆数の次元をもつ定数
-%==========
-\begin{equation} \label{250920141440} 
-   \beta = \frac{m\mu}{\sigma H_0}
-\end{equation}
-%==========
-と無次元定数
-%==========
-\begin{equation} \label{250920141156} 
-   \epsilon = \frac{m\mu}{\sigma}\sqrt{\frac{2}{gH_0}} = 2\frac{K_0/T_0}{v_{f0}}
-\end{equation}
-%==========
-を定義する。
-右辺最終項の分子は砂時計の速度スケール（砂層の初期高さと計時時間の比）で、分母は砂粒の（最大）自由落下速度である。
-したがって$\epsilon$は微少量である。
-%==========
-\begin{equation} \label{250917183422} 
-    \epsilon \ll 1
-\end{equation}
-%==========
-あとで$\mathcal{O}(\epsilon^2)$を無視する近似を行う。
-すると$k_2(t)$に対する微分方程式
-%==========
-\begin{equation} \label{250920141635} 
-    \beta =  \dot{k}_2(t)  + \epsilon \frac{\mathrm{d} }{\mathrm{d} t}\sqrt{1-k_2(t)}
-\end{equation}
-%==========
-を得る。
-これを解くために変数変換をする
+
+式\eqref{250920141635}を解くために
 %==========
 \begin{equation} \label{250920142319} 
    \zeta(t) =  \sqrt{1-k_2(t)}
@@ -840,85 +936,86 @@ $\dot{M}_1<0$, $\dot{K}_1<0$であるが、上の砂層の運動量$P_1$の時�
    k_2(t) = 1-\zeta^2(t)
 \end{equation}
 %==========
-である。
-解くべき微分方程式は
-%==========
-\begin{equation} \label{250920142453} 
-   \beta = -2\zeta\dot{\zeta} + \epsilon\dot{\zeta}
-\end{equation}
-%==========
-つまり
+という変数変換をする。
+すると微分方程式は
+%%==========
+%\begin{equation} \label{250920142453} 
+%   \beta = -2\zeta\dot{\zeta} + \epsilon\dot{\zeta}
+%\end{equation}
+%%==========
+%つまり
 %==========
 \begin{equation} \label{250920142635} 
    (2\zeta-\epsilon)\dot{\zeta} = -\beta
 \end{equation}
 %==========
-である。
-これを解く。
-%==========
-\begin{equation} \label{250920142711} 
-   (2\zeta-\epsilon)\,\mathrm{d}\zeta = -\beta\,\mathrm{d} t
-\end{equation}
-%==========
-%==========
-\begin{equation} \label{250920142804} 
-    \int (2\zeta-\epsilon)\,\mathrm{d}\zeta = -\int \beta\,\mathrm{d} t 
-\end{equation}
-%==========
+であり、
+その解は
+%%==========
+%\begin{equation} \label{250920142711} 
+%   (2\zeta-\epsilon)\,\mathrm{d}\zeta = -\beta\,\mathrm{d} t
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250920142804} 
+%    \int (2\zeta-\epsilon)\,\mathrm{d}\zeta = -\int \beta\,\mathrm{d} t 
+%\end{equation}
+%%==========
 %==========
 \begin{equation} \label{250920142835} 
    \zeta^2 - \epsilon \zeta = -\beta t + C
 \end{equation}
 %==========
-$K_2$（つまり$\zeta$）は$t\ge \tau_{f0}$から変化し始めるので、
-初期条件として$t=\tau_{f0}$をとるべきだが、今は簡単のため時刻の原点をずらして$t=0$での初期条件を$\zeta=1$（つまり$K_2=0$）とした解を求め、
+である。
+$K_2$（つまり$\zeta$）は$t\ge \tau_0$から変化し始めるので、
+初期条件として$t=\tau_0$をとるべきだが、今は簡単のため時刻の原点をずらして$t=0$での初期条件を$\zeta=1$（つまり$K_2=0$）とした解を求め、
 最後に時刻を平行移動して元に戻す。
 初期条件$\zeta(0)=1$より積分定数が$C=1-\epsilon$と決まるので、
-%==========
-\begin{equation} \label{250920143258} 
-   \zeta^2 - \epsilon \zeta + \beta t =  1 - \epsilon
-\end{equation}
-%==========
+%%==========
+%\begin{equation} \label{250920143258} 
+%   \zeta^2 - \epsilon \zeta + \beta t =  1 - \epsilon
+%\end{equation}
+%%==========
 %==========
 \begin{equation} \label{250920143924} 
   \zeta^2 - \epsilon \zeta + \beta t +\epsilon -  1  = 0
 \end{equation}
 %==========
-この2次方程式を解く
-%==========
-\begin{equation} \label{250920144013} 
-   \zeta = \frac{1}{2}
-   			\left(
-				\epsilon \pm \sqrt{\epsilon^2-4(\beta t+\epsilon-1)}
-			\right)   			
-\end{equation}
-%==========
-%==========
-\begin{equation} \label{250920144311} 
-   \zeta = \frac{1}{2}
-   			\left(
-				\epsilon \pm \sqrt{\epsilon^2-4\beta t-4\epsilon+4)}
-			\right)   		
-\end{equation}
-%==========
-%==========
-\begin{equation} \label{250920144425} 
-   \zeta = \frac{1}{2}
-   			\left(
-				\epsilon \pm \sqrt{(2-\epsilon)^2-4\beta t}
-			\right)   	
-\end{equation}
-%==========
-初期条件から複合は+をとる。
-%==========
-\begin{equation} \label{250920144626} 
-   \zeta = \frac{1}{2}
-   			\left(
-				\epsilon + \sqrt{(2-\epsilon)^2-4\beta t}
-			\right)   	
-\end{equation}
-%==========
-式\eqref{250920142334}より
+この2次方程式を解き、
+%%==========
+%\begin{equation} \label{250920144013} 
+%   \zeta = \frac{1}{2}
+%   			\left(
+%				\epsilon \pm \sqrt{\epsilon^2-4(\beta t+\epsilon-1)}
+%			\right)   			
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250920144311} 
+%   \zeta = \frac{1}{2}
+%   			\left(
+%				\epsilon \pm \sqrt{\epsilon^2-4\beta t-4\epsilon+4}
+%			\right)   		
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250920144425} 
+%   \zeta = \frac{1}{2}
+%   			\left(
+%				\epsilon \pm \sqrt{(2-\epsilon)^2-4\beta t}
+%			\right)   	
+%\end{equation}
+%%==========
+%初期条件から複合は+をとる。
+%%==========
+%\begin{equation} \label{250920144626} 
+%   \zeta = \frac{1}{2}
+%   			\left(
+%				\epsilon + \sqrt{(2-\epsilon)^2-4\beta t}
+%			\right)   	
+%\end{equation}
+%%==========
+式\eqref{250920142334}を使うと、
 %==========
 \begin{equation} \label{250920144518} 
   k_2  = 1-\frac{1}{4}
@@ -927,120 +1024,122 @@ $K_2$（つまり$\zeta$）は$t\ge \tau_{f0}$から変化し始めるので、
 			\right)^2
 \end{equation}
 %==========
-これから$\mathcal{O}(\epsilon^2)$を無視する近似を行う。
-$\epsilon$は上の式の右辺、最後の項の中だけにあり、しかもこの項は括弧の中が2乗されているので、
-今の近似のためにはこの括弧の中の$\epsilon$の1次までとればよい。
-%==========
-\begin{equation} \label{250920145208} 
-  k_2  = 1-\frac{1}{4}
-   			\left(
-				\epsilon + \sqrt{4-4\epsilon-4\beta t}
-			\right)^2 + \mathcal{O}(\epsilon^2)
-\end{equation}
-%==========
-%==========
-\begin{equation} \label{250920145322} 
-  k_2  = 1-\frac{1}{4}
-   			\left(
-				\epsilon + 2\sqrt{1-\epsilon-\beta t}
-			\right)^2+ \mathcal{O}(\epsilon^2)
-\end{equation}
-%==========
-%==========
-\begin{equation} \label{250920145438} 
-  k_2  = 1-\frac{1}{4}
-   			\left(
-				\epsilon + 2\sqrt{1-\beta t-\epsilon}
-			\right)^2+ \mathcal{O}(\epsilon^2)
-\end{equation}
-%==========
-%==========
-\begin{equation} \label{250920145507} 
-  k_2  = 1-\frac{1}{4}
-   			\left(
-				\epsilon + 2\sqrt{(1-\beta t)(1-\frac{\epsilon}{1-\beta t})}
-			\right)^2+ \mathcal{O}(\epsilon^2)
-\end{equation}
-%==========
-%==========
-\begin{equation} \label{250920145549} 
-  k_2  = 1-\frac{1}{4}
-   			\left(
-				\epsilon + 2\sqrt{1-\beta t}\sqrt{1-\frac{\epsilon}{1-\beta t}}
-			\right)^2+ \mathcal{O}(\epsilon^2)
-\end{equation}
-%==========
-%==========
-\begin{equation} \label{250920145621} 
-  k_2  = 1-\frac{1}{4}
-   			\left(
-				\epsilon + 2\sqrt{1-\beta t}\left(1-\frac{\epsilon}{2(1-\beta t)}\right)
-			\right)^2+ \mathcal{O}(\epsilon^2)
-\end{equation}
-%==========
-%==========
-\begin{equation} \label{250920150047} 
-  k_2  = 1-\frac{1}{4}
-   			\left(
-				\epsilon + 2\sqrt{1-\beta t}-\frac{\epsilon}{\sqrt{1-\beta t}}
-			\right)^2+ \mathcal{O}(\epsilon^2)
-\end{equation}
-%==========
-%==========
-\begin{equation} \label{250920150330} 
-  k_2  = 1-\frac{1}{4}
-   			\left(
-				 2\sqrt{1-\beta t} + \epsilon -\frac{\epsilon}{\sqrt{1-\beta t}}
-			\right)^2+ \mathcal{O}(\epsilon^2)
-\end{equation}
-%==========
-%==========
-\begin{equation} \label{250920150359} 
-  k_2  = 1-\frac{1}{4}
-   			\left(
-				 2\sqrt{1-\beta t} \left(
-				 		   1
-				 			+ \frac{\epsilon}{2\sqrt{1-\beta t}} -\frac{\epsilon}{2(1-\beta t)}
-								\right)
-			\right)^2+ \mathcal{O}(\epsilon^2)
-\end{equation}
-%==========
-%==========
-\begin{equation} \label{250920150657} 
-  k_2  = 1-\frac{1}{4}
-  			 4(1-\beta t)
-			 \left(
-				 	  1
-				 			+ \frac{\epsilon}{\sqrt{1-\beta t}} -\frac{\epsilon}{(1-\beta t)}
-			\right)+ \mathcal{O}(\epsilon^2)
-\end{equation}
-%==========
-%==========
-\begin{equation} \label{250920150941} 
-  k_2  = 1- (1-\beta t)
-			 \left(
-				 	  1
-				 			+ \frac{\epsilon}{\sqrt{1-\beta t}} -\frac{\epsilon}{(1-\beta t)}
-			\right)+ \mathcal{O}(\epsilon^2)
-\end{equation}
-%==========
-%==========
-\begin{equation} \label{250920151020} 
-  k_2  = 1- (1-\beta t)
-					- \epsilon\sqrt{1-\beta t} +\epsilon
-			+ \mathcal{O}(\epsilon^2)
-\end{equation}
-%==========
+%
+%
+ここで$\mathcal{O}(\epsilon^2)$を無視する近似を行う。
+%$\epsilon$は上の式の右辺、最後の項の中だけにあり、しかもこの項は括弧の中が2乗されているので、
+%今の近似のためにはこの括弧の中の$\epsilon$の1次までとればよい。
+%%==========
+%\begin{equation} \label{250920145208} 
+%  k_2  = 1-\frac{1}{4}
+%   			\left(
+%				\epsilon + \sqrt{4-4\epsilon-4\beta t}
+%			\right)^2 + \mathcal{O}(\epsilon^2)
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250920145322} 
+%  k_2  = 1-\frac{1}{4}
+%   			\left(
+%				\epsilon + 2\sqrt{1-\epsilon-\beta t}
+%			\right)^2+ \mathcal{O}(\epsilon^2)
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250920145438} 
+%  k_2  = 1-\frac{1}{4}
+%   			\left(
+%				\epsilon + 2\sqrt{1-\beta t-\epsilon}
+%			\right)^2+ \mathcal{O}(\epsilon^2)
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250920145507} 
+%  k_2  = 1-\frac{1}{4}
+%   			\left(
+%				\epsilon + 2\sqrt{(1-\beta t)(1-\frac{\epsilon}{1-\beta t})}
+%			\right)^2+ \mathcal{O}(\epsilon^2)
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250920145549} 
+%  k_2  = 1-\frac{1}{4}
+%   			\left(
+%				\epsilon + 2\sqrt{1-\beta t}\sqrt{1-\frac{\epsilon}{1-\beta t}}
+%			\right)^2+ \mathcal{O}(\epsilon^2)
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250920145621} 
+%  k_2  = 1-\frac{1}{4}
+%   			\left(
+%				\epsilon + 2\sqrt{1-\beta t}\left(1-\frac{\epsilon}{2(1-\beta t)}\right)
+%			\right)^2+ \mathcal{O}(\epsilon^2)
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250920150047} 
+%  k_2  = 1-\frac{1}{4}
+%   			\left(
+%				\epsilon + 2\sqrt{1-\beta t}-\frac{\epsilon}{\sqrt{1-\beta t}}
+%			\right)^2+ \mathcal{O}(\epsilon^2)
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250920150330} 
+%  k_2  = 1-\frac{1}{4}
+%   			\left(
+%				 2\sqrt{1-\beta t} + \epsilon -\frac{\epsilon}{\sqrt{1-\beta t}}
+%			\right)^2+ \mathcal{O}(\epsilon^2)
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250920150359} 
+%  k_2  = 1-\frac{1}{4}
+%   			\left(
+%				 2\sqrt{1-\beta t} \left(
+%				 		   1
+%				 			+ \frac{\epsilon}{2\sqrt{1-\beta t}} -\frac{\epsilon}{2(1-\beta t)}
+%								\right)
+%			\right)^2+ \mathcal{O}(\epsilon^2)
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250920150657} 
+%  k_2  = 1-\frac{1}{4}
+%  			 4(1-\beta t)
+%			 \left(
+%				 	  1
+%				 			+ \frac{\epsilon}{\sqrt{1-\beta t}} -\frac{\epsilon}{(1-\beta t)}
+%			\right)+ \mathcal{O}(\epsilon^2)
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250920150941} 
+%  k_2  = 1- (1-\beta t)
+%			 \left(
+%				 	  1
+%				 			+ \frac{\epsilon}{\sqrt{1-\beta t}} -\frac{\epsilon}{(1-\beta t)}
+%			\right)+ \mathcal{O}(\epsilon^2)
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250920151020} 
+%  k_2  = 1- (1-\beta t)
+%					- \epsilon\sqrt{1-\beta t} +\epsilon
+%			+ \mathcal{O}(\epsilon^2)
+%\end{equation}
+%%==========
 %==========
 \begin{equation} \label{250920151147} 
   k_2  = \beta t +  \epsilon\left(1-\sqrt{1-\beta t}\right)
 			+ \mathcal{O}(\epsilon^2)
 \end{equation}
 %==========
-%初期条件の設定時刻を$t=0$から$t=\tau_{f0}$にずらすと
+%初期条件の設定時刻を$t=0$から$t=\tau_0$にずらすと
 %%==========
 %\begin{equation} \label{250920163140} 
-%    k_2  = \beta (t-\tau_{f0}) +  \epsilon\left(\sqrt{1-\beta (t-\tau_{f0})} -1\right)
+%    k_2  = \beta (t-\tau_0) +  \epsilon\left(\sqrt{1-\beta (t-\tau_0)} -1\right)
 %			+ \mathcal{O}(\epsilon^2)  
 %\end{equation}
 %%==========
@@ -1051,39 +1150,39 @@ $\epsilon$は上の式の右辺、最後の項の中だけにあり、しかも�
 \end{equation}
 %==========
 である。
-$K_2$にもどすと、
-%==========
-\begin{equation} \label{250920163650}
-  K_2  = \frac{m\mu}{\sigma} t +  \epsilon H_0 \left(1-\sqrt{1-\beta t} \right)
-			+ \mathcal{O}(\epsilon^2)
-\end{equation}
-%==========
-%==========
-\begin{equation} \label{250920161340} 
-   \dot{K}_2  = \frac{m\mu}{\sigma}\left( 1+ \frac{\epsilon}{2\sqrt{1-\beta t}}\right)+ \mathcal{O}(\epsilon^2)
-\end{equation}
-%==========
+なお、$1-\beta t \ge \beta T_0 = 1-K_0/H_0>0$である。
 
 
-
-
-
-
-以上の解は微分方程式を$t=0$で$K_2=0$（$\zeta=1$）という初期条件で解いたものであったが、本来は
-$t=\tau_{f0}$で$K_2=0$とすべきであった。
-この初期条件の下での解は
+式\eqref{250920151147}と\eqref{250920152117}を$K_2$で書くと同時に、
+%%==========
+%\begin{equation} \label{250920163650}
+%  K_2  = \frac{m\mu}{\sigma} t +  \epsilon H_0 \left(1-\sqrt{1-\beta t} \right)
+%			+ \mathcal{O}(\epsilon^2)
+%\end{equation}
+%%==========
+%%==========
+%\begin{equation} \label{250920161340} 
+%   \dot{K}_2  = \frac{m\mu}{\sigma}\left( 1+ \frac{\epsilon}{2\sqrt{1-\beta t}}\right)+ \mathcal{O}(\epsilon^2)
+%\end{equation}
+%%==========
+%である。
+%以上の解は微分方程式を$t=0$で$K_2=0$（$\zeta=1$）という初期条件で解いたものであったが、本来は
+%$t=\tau_0$で$K_2=0$とすべきであった。
+%この初期条件の下での解は
+初期条件を$t=0$から$t=\tau_0$にずらす。
+すると、$ \mathcal{O}(\epsilon)$までの近似解が
 %==========
 \begin{equation} \label{250920170419}
-  K_2  = \frac{m\mu}{\sigma} (t-\tau_{f0}) +  \epsilon H_0 \left(1-\sqrt{1-\beta  (t-\tau_{f0})} \right)
+  K_2  = \frac{m\mu}{\sigma} (t-\tau_0) +  \epsilon H_0 \left(1-\sqrt{1-\beta  (t-\tau_0)} \right)
 			+ \mathcal{O}(\epsilon^2)
 \end{equation}
 %==========
 %==========
 \begin{equation} \label{250920170423}
-   \dot{K}_2  = \frac{m\mu}{\sigma}\left( 1+ \frac{\epsilon}{2\sqrt{1-\beta  (t-\tau_{f0})}}\right)+ \mathcal{O}(\epsilon^2)
+   \dot{K}_2  = \frac{m\mu}{\sigma}\left( 1+ \frac{\epsilon}{2\sqrt{1-\beta  (t-\tau_0)}}\right)+ \mathcal{O}(\epsilon^2)
 \end{equation}
 %==========
-である。
+として得られる。
 
 
 
@@ -1110,17 +1209,22 @@ $t=\tau_{f0}$で$K_2=0$とすべきであった。
     $y=a$で床面に接触し、粒子のバネとダンパーによって衝突のエネルギーが吸収される。
 
   % fig03
+  \item[図\ref{250924103856}]
+    砂柱モデル。砂の「柱」が複数あり、それぞれで砂粒が鉛直方向のみに運動するモデル。
+    砂の「柱」が一本だけの場合（左の図）と比較して、単位時間あたりに落下する砂粒の数を増加させることができる（右の図）。
+
+  % fig04
   \item[図\ref{250921063433}]
     オリフィスのモデル。
     時間の経過と共に一定の割合$\mu~\si{(s^{-1})}$で砂粒が落下する粉体特有の現象をソフトスフィアモデルに組み込むために、
-    本シミュレーションでは床面のと接触（抗力）を担う粒子を一定の割合で切り替える。
+    本シミュレーションでは床面との接触（抗力）を担う粒子を一定の割合で切り替える。
     左の図では粒子0の下側のバネ（マゼンタ色）が床面と接触し、抗力を受けている。
     $1/\mu$~\si{(s)}の時間が経過すると、床面と相互作用する粒子は1に切り替わる（真ん中の図）。
     粒子0は床に支えられていないので、下方に落下する。
     粒子1（およびそれよりも上の粒子2等）は重力によって落下するが、
     すぐに床面に衝突して次の切り替え時刻まで、床面に支えられる（右の図）。
 
-  % fig04
+  % fig05
   \item[図\ref{250919165122}] 
     砂柱の数$N_P=14$で、各砂柱中の粒子数$N_S=20$でのシミュレーションのスナップショット。
     $U_F$は上の床面、$L_F$は下の床面を示す。
@@ -1128,7 +1232,7 @@ $t=\tau_{f0}$で$K_2=0$とすべきであった。
     落ちている最中（真ん中の図）、
     全ての砂が落ちた後（右の図）。
 
-  % fig05
+  % fig06
   \item[図\ref{250921210605}] 
     質量$M_0=1$~\si{(kg)}の砂を支える抗力$F$の時間変化を重さ$W=F/g$で示したグラフ。
     左のグラフは時間間隔$0.2$~\si{(s)}で平均をとった。
@@ -1154,14 +1258,15 @@ $t=\tau_{f0}$で$K_2=0$とすべきであった。
 主に地磁気に関連した計算科学と可視化を含めたシミュレーション手法の研究を行っている。
 
 
-
 \vspace{1em}
 \noindent
 中島 涼輔（非会員）
 
-XXXXXXXXXXXXXXXXXXXXXXXXXXXX。
+神戸大学システム情報学研究科特命助教。
+九州大学大学院理学府地球惑星科学専攻博士後期課程修了。
+九州大学大学院理学研究院特任助教を経て2025年より現職。
+主にシミュレーションを用いて、地球内部物理学、地球電磁気学、地球流体力学に関する研究を行っている。
 
-XXXXXXXXXXXXXXXXXXXXXXXXXXXX。
 
 \vspace{1em}
 \noindent
@@ -1176,7 +1281,7 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXX。
 \begin{figure}[ht]   \centering   
   \includegraphics[%
      height=1.0\textheight,%
-       width=0.6\hsize,keepaspectratio]%
+       width=0.8\hsize,keepaspectratio]%
          {./figs/schematic_objects_and_forces.png}   
       \caption{砂時計内部の砂を支える抗力と本研究における砂のモデル。
       砂は質量が変化する物体と考える。
@@ -1210,10 +1315,23 @@ XXXXXXXXXXXXXXXXXXXXXXXXXXXX。
   \includegraphics[%
      height=1.0\textheight,%
        width=0.5\hsize,keepaspectratio]%
+         {./figs/sandPileModel.png}   
+      \caption{砂柱モデル。砂の「柱」が複数あり、それぞれで砂粒が鉛直方向のみに運動するモデル。
+      砂の「柱」が一本だけの場合（左の図）と比較して、単位時間あたりに落下する砂粒の数を増加させることができる（右の図）。}
+      \label{250924103856}
+\end{figure} 
+%-------------------------------------------------------
+
+\newpage
+%-------------------------------------------------------
+\begin{figure}[ht]   \centering   
+  \includegraphics[%
+     height=1.0\textheight,%
+       width=0.5\hsize,keepaspectratio]%
          {./figs/schematic_orifice}   
       \caption{オリフィスのモデル。
       時間の経過と共に一定の割合$\mu~\si{(s^{-1})}$で砂粒が落下する粉体特有の現象をソフトスフィアモデルに組み込むために、
-      本シミュレーションでは床面のと接触（抗力）を担う粒子を一定の割合で切り替える。
+      本シミュレーションでは床面との接触（抗力）を担う粒子を一定の割合で切り替える。
       左の図では粒子0の下側のバネ（マゼンタ色）が床面と接触し、抗力を受けている。
       $1/\mu$~\si{(s)}の時間が経過すると、床面と相互作用する粒子は1に切り替わる（真ん中の図）。
       粒子0は床に支えられていないので、下方に落下する。
