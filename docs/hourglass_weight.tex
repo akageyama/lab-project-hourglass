@@ -29,10 +29,10 @@
 
 \begin{document}
 
-\color{magenta}
-原稿 ver.~250923b： シミュレーション学会和文論文誌に投稿予定
-\vspace{1em}
-\color{black}
+%\color{magenta}
+%原稿 ver.~250927： シミュレーション学会和文論文誌に投稿予定
+%\vspace{1em}
+%\color{black}
 
 %=========================================================================
 \begin{abstract}
@@ -86,7 +86,7 @@ Hourglass, Mechanics, Discrete Element Method, Variable mass system
 
 
 Scientific American誌の記事においてGardnerが砂時計を使ったおもちゃを紹介したことがきっかけとなり、
-砂時計の重さの問題が注目を集めたようである。\cite{Gardner1966-eu}
+砂時計の重さの問題が注目を集めたようである\cite{Gardner1966-eu}。
 その後、落下した砂が砂時計の底面に与える力積つまり砂時計を重くする効果が、
 落下中の砂の分だけ砂時計の重さが軽くなる効果とちょうどキャンセルするという指摘が（この問題は力学教育のよい題材になるであろうというコメントとともに）された\cite{Reid1967-jq}。
 その議論は以下のように簡単なものである：
@@ -204,7 +204,7 @@ $m$と$\mu$は定数である。
    \sigma = \frac{M_0}{K_0} %= \frac{mN_0}{K_0} 
 \end{equation}
 %==========
-である。
+である。また、
 %==========
 \begin{equation} \label{250919090329} 
    \frac{m\mu}{\sigma} = \frac{K_0}{T_0}
@@ -287,7 +287,7 @@ $m$と$\mu$は定数である。
 \end{equation}
 %==========
 と書ける。
-実はこれは正確ではないが、その誤差は小さい。詳細はAppendix~\ref{250919092352}参照。
+実はこれは正確ではないが、その誤差は小さい。詳細はAppendix~\ref{250919092352}を参照。
 
 
 下の砂層の厚さは
@@ -436,6 +436,7 @@ $F_2 (>0)$を砂時計の構造体が（底面で）物体2を支える抗力と
   \dot{P}_3(t) &=  - M_3(t) g  - F_{13} + F_{23} \label{250703155015c} 
 \end{align}
 %==========
+と書ける。
 
 
 上の3つの式の両辺を足し、
@@ -445,13 +446,13 @@ $F_2 (>0)$を砂時計の構造体が（底面で）物体2を支える抗力と
   2\frac{m^2\mu^2}{\sigma}=  -(M_1+M_2+M_3) g + F_1 + F_2
 \end{equation}
 %==========
-したがって
+となる。したがって
 %==========
 \begin{equation} \label{250919105951} 
    F = F_1 + F_2 = M_0 g +  2\frac{m^2\mu^2}{\sigma}
 \end{equation}
 %==========
-つまり計時中の砂時計が砂を支える抗力は、右辺第2項
+を得る。つまり、計時中の砂時計が砂を支える抗力は、右辺第2項
 %==========
 \begin{equation} \label{250703173105} 
    \Delta F  = 2 \frac{m^2\mu^2}{\sigma}  = 2 \frac{M_0K_0}{T_0^2} 
@@ -507,7 +508,7 @@ $F_2 (>0)$を砂時計の構造体が（底面で）物体2を支える抗力と
 
 我々は粒子法（個別要素法）に基づくシミュレーションによって砂時計の重さの変化を再現する。
 第\ref{250919151350}章で述べた理論は、砂粒の水平方向の運動は全く寄与しておらず、この現象は本質的に1次元的な運動の帰結であることに注意する。
-そこでこのシミュレーションでは各粒子が鉛直方向にのみ運動する1次元モデルを採用する。
+そこで、このシミュレーションでは各粒子が鉛直方向にのみ運動する1次元モデルを採用する。
 つまり、落下して、下の砂層に到達した砂粒は水平方向に動くことはなく、落ちた順番に上に積み上がっていく。
 この場合、砂粒同士の接触相互作用は上下二つの隣の砂粒とだけ考えればよい。
 
@@ -743,7 +744,10 @@ $t=10$以降の短い時間、落下する砂粒による力積の効果によ�
 
 
 シミュレーションで得られた砂時計の重さの変化$\Delta W$をみるために、
-右のグラフでは0.49~\si{(s)}毎の平均値をとり、縦軸を拡大してプロットした。 % 正確には24万ステップ毎の平均値
+右のグラフでは0.48~\si{(s)}毎の平均値をとり、縦軸を拡大してプロットした。 
+%
+% 正確には24万ステップ毎の平均値
+% 
 式\eqref{250703173052}による理論値は
 $\Delta W=2M_0 K_0/gT_0^2 = 2.039\times 10^{-3}$~\si{(kg)}である。
 シミュレーションで得られた重さの増加は理論とよく一致していることがわかる。
@@ -765,7 +769,7 @@ $\dot{M}_1<0$, $\dot{K}_1<0$であるが、上の砂層の運動量$P_1$の時�
 
 
 この二つに加えて見逃し易いが決して無視できない大きさを持つ効果は、
-下の層が厚くなるにつれて、砂の落下距離が短くなることから、落下中の砂がもつ運動量$P_3<0$の時間微分の効果$\dot{P}_3=M_0K_0/T_0^2>0$であり、これも上向きである。
+下の層が厚くなるにつれ、砂の落下距離が短くなることから、落下中の砂がもつ運動量$P_3<0$が時間変化する効果$\dot{P}_3=M_0K_0/T_0^2>0$である。この効果も上向きである。
 砂時計の重さの増分が増える理由は、これら3つの合力で、その値は$\Delta F=2M_0K_0/T_0^2$である。
 手のひらに乗るほどの砂時計を想定し、砂が落ちる前の砂の層の厚さ$K_0$を$\mathcal{O}(10^{-1})$~\si{(m)}、
 砂時計の計時時間$T_0=\mathcal{O}(10^{2})~\si{(s)}$とすると、
@@ -798,7 +802,7 @@ $\dot{M}_1<0$, $\dot{K}_1<0$であるが、上の砂層の運動量$P_1$の時�
 砂の柱が1本だけあるようなシミュレーションモデルでは与えられた時間の間に十分な数の砂を落下させることができない。
 そこで本研究では複数の砂柱からそれぞれ独立に砂粒が落下するモデルを採用し、
 十分な数の砂粒を落下させることができ、理論的に予測される重さの増分を定量的に再現することに成功した。
-これは通常の砂時計のようなくびれのある容器ではなく、円筒形の容器の真ん中に多数の穴のある板を差し込んだTuinstra等の実験において同じ工夫である\cite{Tuinstra2010-wk}。
+これは通常の砂時計のようなくびれのある容器ではなく、円筒形の容器の真ん中に多数の穴のある板を差し込んだTuinstra等の実験においてなされたものと同じ工夫である\cite{Tuinstra2010-wk}。
 
 
 このシミュレーションの特徴は、扱うべきマクロな時間スケールとミクロな時間スケールが大きく異なることである。
@@ -885,7 +889,7 @@ $\dot{M}_1<0$, $\dot{K}_1<0$であるが、上の砂層の運動量$P_1$の時�
     0 =  -\frac{m\mu}{\sigma H_0} +   \frac{\dot{K}_2(t)}{H_0}  + \frac{m\mu}{\sigma}\sqrt{\frac{2}{gH_0}} \frac{\mathrm{d} }{\mathrm{d} t}\sqrt{1-\frac{K_2(t)}{H_0}}
 \end{equation}
 %==========
-ここで、$K_2(t)$を$H_0$で規格化した
+となる。ここで、$K_2(t)$を$H_0$で規格化した
 %==========
 \begin{equation} \label{250920141535} 
    k_2(t) = \frac{K_2(t)}{H_0}
@@ -904,7 +908,7 @@ $\dot{M}_1<0$, $\dot{K}_1<0$であるが、上の砂層の運動量$P_1$の時�
 \end{equation}
 %==========
 を定義する。
-式\eqref{250920141156}の右辺最終項のは、砂層が変化する速度と砂粒の（最大の）自由落下速度の比である。
+式\eqref{250920141156}の最右辺は、砂層が変化する速度と砂粒の（最大の）自由落下速度の比である。
 したがって$\epsilon$は微少量である。
 %%==========
 %\begin{equation} \label{250917183422} 
@@ -922,227 +926,15 @@ $k_2(t)$に対する微分方程式は
 
 
 
-
-
-式\eqref{250920141635}を解くために
-%==========
-\begin{equation} \label{250920142319} 
-   \zeta(t) =  \sqrt{1-k_2(t)}
-\end{equation}
-%==========
-つまり
-%==========
-\begin{equation} \label{250920142334} 
-   k_2(t) = 1-\zeta^2(t)
-\end{equation}
-%==========
-という変数変換をする。
-すると微分方程式は
-%%==========
-%\begin{equation} \label{250920142453} 
-%   \beta = -2\zeta\dot{\zeta} + \epsilon\dot{\zeta}
-%\end{equation}
-%%==========
-%つまり
-%==========
-\begin{equation} \label{250920142635} 
-   (2\zeta-\epsilon)\dot{\zeta} = -\beta
-\end{equation}
-%==========
-であり、
-その解は
-%%==========
-%\begin{equation} \label{250920142711} 
-%   (2\zeta-\epsilon)\,\mathrm{d}\zeta = -\beta\,\mathrm{d} t
-%\end{equation}
-%%==========
-%%==========
-%\begin{equation} \label{250920142804} 
-%    \int (2\zeta-\epsilon)\,\mathrm{d}\zeta = -\int \beta\,\mathrm{d} t 
-%\end{equation}
-%%==========
-%==========
-\begin{equation} \label{250920142835} 
-   \zeta^2 - \epsilon \zeta = -\beta t + C
-\end{equation}
-%==========
-である。
-$K_2$（つまり$\zeta$）は$t\ge \tau_0$から変化し始めるので、
-初期条件として$t=\tau_0$をとるべきだが、今は簡単のため時刻の原点をずらして$t=0$での初期条件を$\zeta=1$（つまり$K_2=0$）とした解を求め、
-最後に時刻を平行移動して元に戻す。
-初期条件$\zeta(0)=1$より積分定数が$C=1-\epsilon$と決まるので、
-%%==========
-%\begin{equation} \label{250920143258} 
-%   \zeta^2 - \epsilon \zeta + \beta t =  1 - \epsilon
-%\end{equation}
-%%==========
-%==========
-\begin{equation} \label{250920143924} 
-  \zeta^2 - \epsilon \zeta + \beta t +\epsilon -  1  = 0
-\end{equation}
-%==========
-この2次方程式を解き、
-%%==========
-%\begin{equation} \label{250920144013} 
-%   \zeta = \frac{1}{2}
-%   			\left(
-%				\epsilon \pm \sqrt{\epsilon^2-4(\beta t+\epsilon-1)}
-%			\right)   			
-%\end{equation}
-%%==========
-%%==========
-%\begin{equation} \label{250920144311} 
-%   \zeta = \frac{1}{2}
-%   			\left(
-%				\epsilon \pm \sqrt{\epsilon^2-4\beta t-4\epsilon+4}
-%			\right)   		
-%\end{equation}
-%%==========
-%%==========
-%\begin{equation} \label{250920144425} 
-%   \zeta = \frac{1}{2}
-%   			\left(
-%				\epsilon \pm \sqrt{(2-\epsilon)^2-4\beta t}
-%			\right)   	
-%\end{equation}
-%%==========
-%初期条件から複合は+をとる。
-%%==========
-%\begin{equation} \label{250920144626} 
-%   \zeta = \frac{1}{2}
-%   			\left(
-%				\epsilon + \sqrt{(2-\epsilon)^2-4\beta t}
-%			\right)   	
-%\end{equation}
-%%==========
-式\eqref{250920142334}を使うと、
-%==========
-\begin{equation} \label{250920144518} 
-  k_2  = 1-\frac{1}{4}
-   			\left(
-				\epsilon + \sqrt{(2-\epsilon)^2-4\beta t}
-			\right)^2
-\end{equation}
-%==========
-%
-%
-ここで$\mathcal{O}(\epsilon^2)$を無視する近似を行う。
-%$\epsilon$は上の式の右辺、最後の項の中だけにあり、しかもこの項は括弧の中が2乗されているので、
-%今の近似のためにはこの括弧の中の$\epsilon$の1次までとればよい。
-%%==========
-%\begin{equation} \label{250920145208} 
-%  k_2  = 1-\frac{1}{4}
-%   			\left(
-%				\epsilon + \sqrt{4-4\epsilon-4\beta t}
-%			\right)^2 + \mathcal{O}(\epsilon^2)
-%\end{equation}
-%%==========
-%%==========
-%\begin{equation} \label{250920145322} 
-%  k_2  = 1-\frac{1}{4}
-%   			\left(
-%				\epsilon + 2\sqrt{1-\epsilon-\beta t}
-%			\right)^2+ \mathcal{O}(\epsilon^2)
-%\end{equation}
-%%==========
-%%==========
-%\begin{equation} \label{250920145438} 
-%  k_2  = 1-\frac{1}{4}
-%   			\left(
-%				\epsilon + 2\sqrt{1-\beta t-\epsilon}
-%			\right)^2+ \mathcal{O}(\epsilon^2)
-%\end{equation}
-%%==========
-%%==========
-%\begin{equation} \label{250920145507} 
-%  k_2  = 1-\frac{1}{4}
-%   			\left(
-%				\epsilon + 2\sqrt{(1-\beta t)(1-\frac{\epsilon}{1-\beta t})}
-%			\right)^2+ \mathcal{O}(\epsilon^2)
-%\end{equation}
-%%==========
-%%==========
-%\begin{equation} \label{250920145549} 
-%  k_2  = 1-\frac{1}{4}
-%   			\left(
-%				\epsilon + 2\sqrt{1-\beta t}\sqrt{1-\frac{\epsilon}{1-\beta t}}
-%			\right)^2+ \mathcal{O}(\epsilon^2)
-%\end{equation}
-%%==========
-%%==========
-%\begin{equation} \label{250920145621} 
-%  k_2  = 1-\frac{1}{4}
-%   			\left(
-%				\epsilon + 2\sqrt{1-\beta t}\left(1-\frac{\epsilon}{2(1-\beta t)}\right)
-%			\right)^2+ \mathcal{O}(\epsilon^2)
-%\end{equation}
-%%==========
-%%==========
-%\begin{equation} \label{250920150047} 
-%  k_2  = 1-\frac{1}{4}
-%   			\left(
-%				\epsilon + 2\sqrt{1-\beta t}-\frac{\epsilon}{\sqrt{1-\beta t}}
-%			\right)^2+ \mathcal{O}(\epsilon^2)
-%\end{equation}
-%%==========
-%%==========
-%\begin{equation} \label{250920150330} 
-%  k_2  = 1-\frac{1}{4}
-%   			\left(
-%				 2\sqrt{1-\beta t} + \epsilon -\frac{\epsilon}{\sqrt{1-\beta t}}
-%			\right)^2+ \mathcal{O}(\epsilon^2)
-%\end{equation}
-%%==========
-%%==========
-%\begin{equation} \label{250920150359} 
-%  k_2  = 1-\frac{1}{4}
-%   			\left(
-%				 2\sqrt{1-\beta t} \left(
-%				 		   1
-%				 			+ \frac{\epsilon}{2\sqrt{1-\beta t}} -\frac{\epsilon}{2(1-\beta t)}
-%								\right)
-%			\right)^2+ \mathcal{O}(\epsilon^2)
-%\end{equation}
-%%==========
-%%==========
-%\begin{equation} \label{250920150657} 
-%  k_2  = 1-\frac{1}{4}
-%  			 4(1-\beta t)
-%			 \left(
-%				 	  1
-%				 			+ \frac{\epsilon}{\sqrt{1-\beta t}} -\frac{\epsilon}{(1-\beta t)}
-%			\right)+ \mathcal{O}(\epsilon^2)
-%\end{equation}
-%%==========
-%%==========
-%\begin{equation} \label{250920150941} 
-%  k_2  = 1- (1-\beta t)
-%			 \left(
-%				 	  1
-%				 			+ \frac{\epsilon}{\sqrt{1-\beta t}} -\frac{\epsilon}{(1-\beta t)}
-%			\right)+ \mathcal{O}(\epsilon^2)
-%\end{equation}
-%%==========
-%%==========
-%\begin{equation} \label{250920151020} 
-%  k_2  = 1- (1-\beta t)
-%					- \epsilon\sqrt{1-\beta t} +\epsilon
-%			+ \mathcal{O}(\epsilon^2)
-%\end{equation}
-%%==========
+この微分方程式を$t=0$で$k_2=0$の初期条件の下で解くと、
 %==========
 \begin{equation} \label{250920151147} 
   k_2  = \beta t +  \epsilon\left(1-\sqrt{1-\beta t}\right)
 			+ \mathcal{O}(\epsilon^2)
 \end{equation}
-%==========
-%初期条件の設定時刻を$t=0$から$t=\tau_0$にずらすと
-%%==========
-%\begin{equation} \label{250920163140} 
-%    k_2  = \beta (t-\tau_0) +  \epsilon\left(\sqrt{1-\beta (t-\tau_0)} -1\right)
-%			+ \mathcal{O}(\epsilon^2)  
-%\end{equation}
-%%==========
+を得る。
+なお、$1-\beta t \ge 1-\beta T_0 = 1-K_0/H_0>0$である。
+また$k_2$の
 時間微分は
 %==========
 \begin{equation} \label{250920152117} 
@@ -1150,25 +942,9 @@ $K_2$（つまり$\zeta$）は$t\ge \tau_0$から変化し始めるので、
 \end{equation}
 %==========
 である。
-なお、$1-\beta t \ge \beta T_0 = 1-K_0/H_0>0$である。
 
 
 式\eqref{250920151147}と\eqref{250920152117}を$K_2$で書くと同時に、
-%%==========
-%\begin{equation} \label{250920163650}
-%  K_2  = \frac{m\mu}{\sigma} t +  \epsilon H_0 \left(1-\sqrt{1-\beta t} \right)
-%			+ \mathcal{O}(\epsilon^2)
-%\end{equation}
-%%==========
-%%==========
-%\begin{equation} \label{250920161340} 
-%   \dot{K}_2  = \frac{m\mu}{\sigma}\left( 1+ \frac{\epsilon}{2\sqrt{1-\beta t}}\right)+ \mathcal{O}(\epsilon^2)
-%\end{equation}
-%%==========
-%である。
-%以上の解は微分方程式を$t=0$で$K_2=0$（$\zeta=1$）という初期条件で解いたものであったが、本来は
-%$t=\tau_0$で$K_2=0$とすべきであった。
-%この初期条件の下での解は
 初期条件を$t=0$から$t=\tau_0$にずらす。
 すると、$ \mathcal{O}(\epsilon)$までの近似解が
 %==========
